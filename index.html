@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>APP_TITLE_PLACEHOLDER</title>
+
+  <style>
+    :root {
+      --pad: 18px;
+      --radius: 18px;
+      --border: rgba(0,0,0,.10);
+      --muted: rgba(0,0,0,.60);
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #f7f7fb;
+      color:#111;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: var(--pad);
+    }
+    .card{
+      width:min(520px, 100%);
+      background:#fff;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.10);
+      overflow:hidden;
+    }
+    header{
+      padding: 16px var(--pad);
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    header h1{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    header .small{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .content{ padding: var(--pad); }
+    .muted{ color: var(--muted); font-size: 13px; line-height:1.35; }
+
+    input, button{
+      width:100%;
+      font-size:16px;
+      padding: 14px 14px;
+      border-radius: 14px;
+    }
+    input{
+      border: 1px solid var(--border);
+      outline: none;
+    }
+    button{
+      margin-top: 10px;
+      border: 0;
+      background: #111;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: scale(.99); }
+
+    .panel{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: #fafafa;
+    }
+
+    #app { display:none; }
+
+    .grid{
+      display:grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+    }
+    .ghost{
+      background: transparent;
+      color:#111;
+      border: 1px solid var(--border);
+    }
+
+    /* area gioco placeholder */
+    .playArea{
+      height: 320px;
+      border-radius: var(--radius);
+      border: 1px dashed rgba(0,0,0,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 18px;
+      color: var(--muted);
+      background: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <header>
+      <h1 id="headerTitle">HEADER_TITLE_PLACEHOLDER</h1>
+      <div class="small" id="headerBadge">HEADER_BADGE_PLACEHOLDER</div>
+    </header>
+
+    <div class="content">
+      <!-- LOGIN (filtro fake) -->
+      <section id="login" class="grid">
+        <div class="panel">
+          <div class="muted" id="loginHint">LOGIN_HINT_PLACEHOLDER</div>
+        </div>
+
+        <input id="pw" type="password" inputmode="text" placeholder="PASSWORD_INPUT_PLACEHOLDER" />
+        <button id="btnEnter">ENTER_BUTTON_LABEL_PLACEHOLDER</button>
+
+        <div class="muted" id="loginFooter">LOGIN_FOOTER_PLACEHOLDER</div>
+      </section>
+
+      <!-- APP -->
+      <section id="app" class="grid">
+        <div class="panel">
+          <h2 id="title" style="margin:0 0 8px 0; font-size:18px;">TITLE_PLACEHOLDER</h2>
+          <div class="muted" id="message">MESSAGE_PLACEHOLDER</div>
+        </div>
+
+        <div class="panel">
+          <div class="row" style="justify-content:space-between; align-items:center;">
+            <div class="muted" id="labelLeft">LABEL_LEFT_PLACEHOLDER</div>
+            <div class="muted" id="labelRight">LABEL_RIGHT_PLACEHOLDER</div>
+          </div>
+        </div>
+
+        <div class="playArea" id="playArea">
+          GAME_AREA_PLACEHOLDER<br/>
+          <span class="muted">GAME_HINT_PLACEHOLDER</span>
+        </div>
+
+        <div class="row">
+          <button class="ghost" id="btnSecondary">SECONDARY_BUTTON_LABEL_PLACEHOLDER</button>
+          <button id="btnPrimary">PRIMARY_BUTTON_LABEL_PLACEHOLDER</button>
+        </div>
+
+        <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIG ======
+    // Filtro fake: cambia questa password
+    const PASSWORD = "TEST1234";
+
+    // ====== ELEMENTS ======
+    const login = document.getElementById("login");
+    const app   = document.getElementById("app");
+    const pw    = document.getElementById("pw");
+    const btnEnter = document.getElementById("btnEnter");
+
+    const btnPrimary = document.getElementById("btnPrimary");
+    const btnSecondary = document.getElementById("btnSecondary");
+    const playArea = document.getElementById("playArea");
+
+    // ====== LOGIN LOGIC ======
+    function enter() {
+      const val = (pw.value || "").trim();
+      if (val === PASSWORD) {
+        login.style.display = "none";
+        app.style.display = "grid";
+        try { if (navigator.vibrate) navigator.vibrate(25); } catch(e) {}
+      } else {
+        try { if (navigator.vibrate) navigator.vibrate([40,40,40]); } catch(e) {}
+        alert("WRONG_PASSWORD_ALERT_PLACEHOLDER");
+      }
+    }
+
+    btnEnter.addEventListener("click", enter);
+    pw.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(); });
+
+    // ====== BUTTON PLACEHOLDER HANDLERS ======
+    btnPrimary.addEventListener("click", () => {
+      alert("PRIMARY_BUTTON_ACTION_PLACEHOLDER");
+    });
+
+    btnSecondary.addEventListener("click", () => {
+      alert("SECONDARY_BUTTON_ACTION_PLACEHOLDER");
+    });
+
+    // Example placeholder: tap area
+    playArea.addEventListener("click", () => {
+      // qui ci metteremo il giochino dopo
+      console.log("PLAY_AREA_CLICK_PLACEHOLDER");
+    });
+  </script>
+</body>
+</html>
