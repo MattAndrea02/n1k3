@@ -8,109 +8,203 @@
   <style>
     :root {
       --pad: 18px;
-      --radius: 18px;
+      --radius: 22px;
       --border: rgba(0,0,0,.10);
-      --muted: rgba(0,0,0,.60);
+      --muted: rgba(0,0,0,.62);
+
+      /* Tema San Valentino */
+      --pink1: #ff4d8d;
+      --pink2: #ff86b3;
+      --cream: #fff7fb;
+      --ink: #1a0f16;
+
+      /* Background fallback */
+      --bg-fallback: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%, #fff 100%);
     }
+
     * { box-sizing: border-box; }
+
     body{
       margin:0;
       min-height:100vh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #f7f7fb;
-      color:#111;
+      color: var(--ink);
       display:flex;
       align-items:center;
       justify-content:center;
       padding: var(--pad);
+
+      /* Fallback: se non c'è immagine */
+      background: var(--bg-fallback);
     }
+
+    /* Overlay leggero per rendere leggibile il contenuto sopra una foto */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      background:
+        radial-gradient(700px 400px at 80% 20%, rgba(255,77,141,.12), transparent 60%),
+        radial-gradient(800px 500px at 30% 90%, rgba(255,134,179,.14), transparent 60%),
+        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.70));
+      z-index: 0;
+    }
+
     .card{
+      position: relative;
+      z-index: 1;
       width:min(520px, 100%);
-      background:#fff;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.10);
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 26px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.13);
       overflow:hidden;
+      backdrop-filter: blur(10px);
     }
+
     header{
       padding: 16px var(--pad);
-      border-bottom: 1px solid var(--border);
       display:flex;
       justify-content:space-between;
       gap:10px;
       align-items:center;
+      color: #fff;
+      background: linear-gradient(90deg, var(--pink1), var(--pink2));
     }
+
     header h1{
       margin:0;
       font-size: 18px;
       line-height: 1.2;
+      letter-spacing: .2px;
     }
+
     header .small{
       font-size: 12px;
-      color: var(--muted);
+      opacity:.9;
       white-space: nowrap;
     }
+
     .content{ padding: var(--pad); }
     .muted{ color: var(--muted); font-size: 13px; line-height:1.35; }
+
+    .panel{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: rgba(255,255,255,.65);
+    }
+
+    .grid{
+      display:grid;
+      gap: 12px;
+    }
 
     input, button{
       width:100%;
       font-size:16px;
       padding: 14px 14px;
-      border-radius: 14px;
+      border-radius: 16px;
     }
+
     input{
-      border: 1px solid var(--border);
+      border: 1px solid rgba(0,0,0,.12);
       outline: none;
+      background: rgba(255,255,255,.9);
     }
+
     button{
-      margin-top: 10px;
       border: 0;
-      background: #111;
-      color: #fff;
-      font-weight: 800;
+      font-weight: 850;
       cursor: pointer;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      transition: transform .08s ease;
     }
+
     button:active{ transform: scale(.99); }
 
-    .panel{
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      background: #fafafa;
+    .btnPrimary{
+      background: linear-gradient(90deg, var(--pink1), var(--pink2));
+      color:#fff;
+      box-shadow: 0 10px 24px rgba(255,77,141,.25);
+    }
+
+    .btnGhost{
+      background: rgba(255,255,255,.85);
+      color: var(--ink);
+      border: 1px solid rgba(0,0,0,.12);
     }
 
     #app { display:none; }
 
-    .grid{
-      display:grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-    }
-    .ghost{
-      background: transparent;
-      color:#111;
-      border: 1px solid var(--border);
+    /* Area gioco */
+    .playArea{
+      position: relative;
+      height: 360px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,.10);
+      background:
+        radial-gradient(120px 120px at 20% 25%, rgba(255,77,141,.14), transparent 60%),
+        radial-gradient(180px 180px at 80% 35%, rgba(255,134,179,.16), transparent 60%),
+        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.75));
+      overflow:hidden;
     }
 
-    /* area gioco placeholder */
-    .playArea{
-      height: 320px;
-      border-radius: var(--radius);
-      border: 1px dashed rgba(0,0,0,.25);
+    .questionWrap{
+      height: 100%;
+      padding: 16px;
       display:flex;
-      align-items:center;
-      justify-content:center;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
       text-align:center;
-      padding: 18px;
-      color: var(--muted);
-      background: #fff;
+    }
+
+    .question{
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1.25;
+      padding: 14px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Il NO diventa "scappino" assoluto */
+    #btnNo{
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      width: calc(50% - 22px); /* allineamento visivo iniziale */
+    }
+
+    /* Il ? (poi SI) resta nella griglia, stabile */
+    #btnMaybe{
+      width: 100%;
+    }
+
+    /* contenitore per la colonna sinistra, per posizionare bene il ? */
+    .leftSlot{
+      position: relative;
+      z-index: 1;
+    }
+
+    /* piccola decorazione */
+    .floating{
+      position:absolute;
+      opacity:.14;
+      font-size: 42px;
+      user-select:none;
+      pointer-events:none;
+      filter: blur(.1px);
     }
   </style>
 </head>
@@ -130,7 +224,7 @@
         </div>
 
         <input id="pw" type="password" inputmode="text" placeholder="PASSWORD_INPUT_PLACEHOLDER" />
-        <button id="btnEnter">ENTER_BUTTON_LABEL_PLACEHOLDER</button>
+        <button class="btnPrimary" id="btnEnter">ENTER_BUTTON_LABEL_PLACEHOLDER</button>
 
         <div class="muted" id="loginFooter">LOGIN_FOOTER_PLACEHOLDER</div>
       </section>
@@ -138,25 +232,31 @@
       <!-- APP -->
       <section id="app" class="grid">
         <div class="panel">
-          <h2 id="title" style="margin:0 0 8px 0; font-size:18px;">TITLE_PLACEHOLDER</h2>
-          <div class="muted" id="message">MESSAGE_PLACEHOLDER</div>
-        </div>
-
-        <div class="panel">
-          <div class="row" style="justify-content:space-between; align-items:center;">
-            <div class="muted" id="labelLeft">LABEL_LEFT_PLACEHOLDER</div>
-            <div class="muted" id="labelRight">LABEL_RIGHT_PLACEHOLDER</div>
-          </div>
+          <div class="muted" id="introLabel">INTRO_LABEL_PLACEHOLDER</div>
         </div>
 
         <div class="playArea" id="playArea">
-          GAME_AREA_PLACEHOLDER<br/>
-          <span class="muted">GAME_HINT_PLACEHOLDER</span>
-        </div>
+          <!-- decorazioni leggere -->
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-        <div class="row">
-          <button class="ghost" id="btnSecondary">SECONDARY_BUTTON_LABEL_PLACEHOLDER</button>
-          <button id="btnPrimary">PRIMARY_BUTTON_LABEL_PLACEHOLDER</button>
+          <div class="questionWrap">
+            <div class="question" id="questionText">QUESTION_PLACEHOLDER</div>
+
+            <div class="choices">
+              <div class="leftSlot">
+                <button class="btnPrimary" id="btnMaybe">MAYBE_LABEL_PLACEHOLDER</button>
+              </div>
+              <!-- il NO viene posizionato assoluto, quindi qui mettiamo solo uno "slot" visivo -->
+              <div></div>
+            </div>
+
+            <!-- NO assoluto (scappa) -->
+            <button class="btnGhost" id="btnNo">NO_LABEL_PLACEHOLDER</button>
+
+            <div class="muted" id="hintText">HINT_PLACEHOLDER</div>
+          </div>
         </div>
 
         <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
@@ -165,21 +265,56 @@
   </div>
 
   <script>
-    // ====== CONFIG ======
-    // Filtro fake: cambia questa password
-    const PASSWORD = "TEST1234";
+    // =======================
+    // CONFIG (placeholders)
+    // =======================
+    const PASSWORD = "PASSWORD_PLACEHOLDER";
 
-    // ====== ELEMENTS ======
+    // sfondo: metti un file in root repo (es: background.jpg) e aggiorna qui
+    const BACKGROUND_IMAGE = "background.jpg"; // oppure "bg.png" ecc.
+
+    // domanda e testi (placeholder)
+    const QUESTION_TEXT = "QUESTION_PLACEHOLDER";
+    const MAYBE_LABEL_INITIAL = "?";     // richiesto: un bottone con "?"
+    const MAYBE_LABEL_AFTER = "SI";      // dopo 4 NO
+    const NO_LABEL = "NO";
+
+    // UX
+    const NO_CLICKS_TO_UNLOCK_SI = 4;
+
+    // =======================
+    // ELEMENTS
+    // =======================
     const login = document.getElementById("login");
     const app   = document.getElementById("app");
     const pw    = document.getElementById("pw");
     const btnEnter = document.getElementById("btnEnter");
 
-    const btnPrimary = document.getElementById("btnPrimary");
-    const btnSecondary = document.getElementById("btnSecondary");
     const playArea = document.getElementById("playArea");
+    const questionText = document.getElementById("questionText");
+    const btnMaybe = document.getElementById("btnMaybe");
+    const btnNo = document.getElementById("btnNo");
 
-    // ====== LOGIN LOGIC ======
+    // =======================
+    // BACKGROUND IMAGE (optional)
+    // =======================
+    (function applyOptionalBackground(){
+      if (!BACKGROUND_IMAGE) return;
+
+      const img = new Image();
+      img.onload = () => {
+        document.body.style.background =
+          `url('${BACKGROUND_IMAGE}') center / cover no-repeat fixed`;
+      };
+      img.onerror = () => {
+        // se non esiste, resta il fallback già in CSS
+      };
+      img.src = BACKGROUND_IMAGE;
+    })();
+
+    // =======================
+    // LOGIN LOGIC
+    // =======================
     function enter() {
       const val = (pw.value || "").trim();
       if (val === PASSWORD) {
@@ -191,24 +326,71 @@
         alert("WRONG_PASSWORD_ALERT_PLACEHOLDER");
       }
     }
-
     btnEnter.addEventListener("click", enter);
     pw.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(); });
 
-    // ====== BUTTON PLACEHOLDER HANDLERS ======
-    btnPrimary.addEventListener("click", () => {
-      alert("PRIMARY_BUTTON_ACTION_PLACEHOLDER");
+    // =======================
+    // GAME 1: NO scappa, dopo 4 click '?' -> 'SI'
+    // =======================
+    let noClicks = 0;
+
+    function setInitialTexts(){
+      questionText.textContent = QUESTION_TEXT;
+      btnMaybe.textContent = MAYBE_LABEL_INITIAL;
+      btnNo.textContent = NO_LABEL;
+    }
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function moveNoRandom(){
+      const pad = 10;
+
+      const area = playArea.getBoundingClientRect();
+      const b = btnNo.getBoundingClientRect();
+
+      // range disponibile dentro playArea
+      const maxX = area.width - b.width - pad;
+      const maxY = area.height - b.height - pad;
+
+      const x = Math.random() * maxX + pad;
+      const y = Math.random() * maxY + pad;
+
+      btnNo.style.left = x + "px";
+      btnNo.style.top  = y + "px";
+      btnNo.style.bottom = "auto";
+    }
+
+    function unlockYesIfNeeded(){
+      if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) {
+        btnMaybe.textContent = MAYBE_LABEL_AFTER; // "SI"
+      }
+    }
+
+    // click su NO: scappa sempre, conta fino a 4
+    btnNo.addEventListener("click", () => {
+      noClicks++;
+      unlockYesIfNeeded();
+      moveNoRandom();
+      try { if (navigator.vibrate) navigator.vibrate(15); } catch(e) {}
     });
 
-    btnSecondary.addEventListener("click", () => {
-      alert("SECONDARY_BUTTON_ACTION_PLACEHOLDER");
+    // opzionale: se l'utente prova a "beccarlo" e manca, scappa comunque (trolling leggero)
+    playArea.addEventListener("click", (e) => {
+      if (e.target !== btnNo) return;
+      // il click di btnNo è già gestito sopra
     });
 
-    // Example placeholder: tap area
-    playArea.addEventListener("click", () => {
-      // qui ci metteremo il giochino dopo
-      console.log("PLAY_AREA_CLICK_PLACEHOLDER");
+    // click su ?/SI: placeholder (poi ci attacchiamo altro)
+    btnMaybe.addEventListener("click", () => {
+      alert("MAYBE_OR_YES_ACTION_PLACEHOLDER");
     });
+
+    // inizializza
+    setInitialTexts();
+
+    // posizionamento iniziale NO: già in CSS, ma dopo il primo click diventa assoluto random
+    // se vuoi farlo scappare già al load, scommenta:
+    // moveNoRandom();
   </script>
 </body>
 </html>
