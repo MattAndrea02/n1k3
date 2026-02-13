@@ -1,289 +1,738 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>APP_TITLE_PLACEHOLDER</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>APP_TITLE_PLACEHOLDER</title>
 
-<style>
-:root{
-  --pink1:#ff4d8d;
-  --pink2:#ff86b3;
-  --ink:#1a0f16;
-  --muted:rgba(0,0,0,.6);
-  --radius:22px;
-}
+  <style>
+    :root {
+      --pad: 18px;
+      --radius: 22px;
+      --muted: rgba(0,0,0,.62);
 
-*{box-sizing:border-box}
+      --pink1: #ff4d8d;
+      --pink2: #ff86b3;
+      --ink: #1a0f16;
 
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%);
-  color:var(--ink);
-}
+      --bg-fallback: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%, #fff 100%);
+    }
 
-.card{
-  width:min(520px,100%);
-  background:rgba(255,255,255,.88);
-  border-radius:26px;
-  box-shadow:0 20px 60px rgba(0,0,0,.15);
-  overflow:hidden;
-}
+    * { box-sizing: border-box; }
 
-header{
-  padding:14px 18px;
-  background:linear-gradient(90deg,var(--pink1),var(--pink2));
-  color:#fff;
-  font-weight:800;
-}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: var(--pad);
+      background: var(--bg-fallback);
+    }
 
-.content{padding:18px; display:grid; gap:12px;}
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      background:
+        radial-gradient(700px 400px at 80% 20%, rgba(255,77,141,.12), transparent 60%),
+        radial-gradient(800px 500px at 30% 90%, rgba(255,134,179,.14), transparent 60%),
+        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.70));
+      z-index: 0;
+    }
 
-input,button{
-  padding:14px;
-  border-radius:16px;
-  font-size:16px;
-}
+    .card{
+      position: relative;
+      z-index: 1;
+      width:min(520px, 100%);
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 26px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.13);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
 
-input{border:1px solid #ddd;}
-button{border:0; font-weight:900; cursor:pointer}
+    header{
+      padding: 16px var(--pad);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      color: #fff;
+      background: linear-gradient(90deg, var(--pink1), var(--pink2));
+    }
 
-.primary{
-  background:linear-gradient(90deg,var(--pink1),var(--pink2));
-  color:#fff;
-}
-.ghost{
-  background:#fff;
-  border:1px solid #ccc;
-}
+    header h1{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: .2px;
+    }
 
-.panel{
-  background:rgba(255,255,255,.7);
-  border-radius:18px;
-  padding:12px;
-}
+    header .small{
+      font-size: 12px;
+      opacity:.9;
+      white-space: nowrap;
+    }
 
-.playArea{
-  position:relative;
-  padding:12px;
-  border-radius:18px;
-  border:1px solid #ddd;
-  background:#fff;
-}
+    .content{ padding: var(--pad); }
 
-/* crossword */
-.cwGrid{
-  display:grid;
-  gap:4px;
-  justify-content:center;
-}
-.cwCell{width:32px;height:32px}
-.cwInput{
-  width:100%;height:100%;
-  text-align:center;
-  font-weight:900;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-.blank{visibility:hidden}
+    .muted{ color: var(--muted); font-size: 13px; line-height:1.35; }
 
-/* stages */
-#app,#stageCross,#stageNo,#stageFinal{display:none}
+    .panel{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: rgba(255,255,255,.65);
+    }
 
-/* escape NO */
-#btnNo{
-  position:absolute;
-  left:20px;
-  bottom:20px;
-}
+    .grid{
+      display:grid;
+      gap: 12px;
+    }
 
-.big{
-  font-size:36px;
-  font-weight:900;
-  text-align:center;
-}
-</style>
+    input, button{
+      width:100%;
+      font-size:16px;
+      padding: 14px 14px;
+      border-radius: 16px;
+    }
+
+    input{
+      border: 1px solid rgba(0,0,0,.12);
+      outline: none;
+      background: rgba(255,255,255,.9);
+    }
+
+    button{
+      border: 0;
+      font-weight: 850;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .08s ease;
+    }
+    button:active{ transform: scale(.99); }
+
+    .btnPrimary{
+      background: linear-gradient(90deg, var(--pink1), var(--pink2));
+      color:#fff;
+      box-shadow: 0 10px 24px rgba(255,77,141,.25);
+    }
+
+    .btnGhost{
+      background: rgba(255,255,255,.85);
+      color: var(--ink);
+      border: 1px solid rgba(0,0,0,.12);
+    }
+
+    .btnDisabled{
+      opacity:.55;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+
+    /* stages */
+    #app { display:none; }
+    #stageCrossword { display:none; }
+    #stageNoEscape { display:none; }
+    #stageFinal { display:none; }
+
+    /* common play container */
+    .playArea{
+      position: relative;
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,.10);
+      background:
+        radial-gradient(120px 120px at 20% 25%, rgba(255,77,141,.14), transparent 60%),
+        radial-gradient(180px 180px at 80% 35%, rgba(255,134,179,.16), transparent 60%),
+        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.75));
+      overflow:hidden;
+      padding: 14px;
+    }
+
+    .floating{
+      position:absolute;
+      opacity:.14;
+      font-size: 42px;
+      user-select:none;
+      pointer-events:none;
+      filter: blur(.1px);
+    }
+
+    /* CROSSWORD */
+    .cwWrap{
+      display:grid;
+      gap: 12px;
+    }
+    .cwGrid{
+      display:grid;
+      gap: 6px;
+      justify-content:center;
+      align-content:center;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .cwCell{
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .cwCell.blank{
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .cwInput{
+      width: 100%;
+      height: 100%;
+      border: 0;
+      outline: 0;
+      background: rgba(255,255,255,.9);
+      text-align:center;
+      font-weight: 900;
+      font-size: 16px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      padding: 0;
+    }
+    .cwInput.ok{ background: rgba(87, 255, 170, .20); }
+    .cwInput.bad{ background: rgba(255, 80, 110, .18); }
+
+    .defs{
+      margin:0;
+      padding-left: 16px;
+    }
+    .defs li{ margin: 6px 0; }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .row > * { flex: 1; }
+
+    /* NO ESCAPE */
+    .questionWrap{
+      height: 340px;
+      padding: 10px;
+      display:flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+      text-align:center;
+    }
+    .question{
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.25;
+      padding: 14px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .choices{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    #btnNo{
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      width: calc(50% - 22px);
+    }
+    #btnMaybe{ width: 100%; }
+    .leftSlot{ position: relative; z-index: 1; }
+
+    /* FINAL */
+    .bigCountdown{
+      font-size: 40px;
+      font-weight: 950;
+      text-align:center;
+      margin-top: 4px;
+    }
+    audio { width: 100%; margin-top: 10px; }
+  </style>
 </head>
 
 <body>
-<div class="card">
+  <div class="card">
+    <header>
+      <h1 id="headerTitle">Cooooooooor mij</h1>
+      <div class="small" id="headerBadge"></div>
+    </header>
 
-<header>HEADER_PLACEHOLDER</header>
+    <div class="content">
+      <!-- LOGIN -->
+      <section id="login" class="grid">
+        <div class="panel">
+          <div class="muted" id="loginHint">Egoriferito, oppure...?</div>
+        </div>
 
-<div class="content">
+        <input id="pw" type="password" inputmode="text" placeholder="                    " />
+        <button class="btnPrimary" id="btnEnter">Vai</button>
 
-<!-- LOGIN -->
-<div id="login">
-  <div class="panel">Egoriferito, oppure...?</div>
-  <input id="pw" placeholder="PASSWORD_INPUT"/>
-  <button id="enter" class="primary">ENTRA</button>
-</div>
+        <div class="muted" id="loginFooter">LOGIN_FOOTER_PLACEHOLDER</div>
+      </section>
 
-<!-- APP -->
-<div id="app">
+      <!-- APP -->
+      <section id="app" class="grid">
+        <div class="panel">
+          <div class="muted" id="introLabel">INTRO_LABEL_PLACEHOLDER</div>
+        </div>
 
-<!-- CROSSWORD -->
-<div id="stageCross" class="playArea">
-<div id="cwGrid" class="cwGrid"></div>
-<ol id="defs"></ol>
-<div id="cwStatus"></div>
-</div>
+        <!-- STAGE 1: Crossword -->
+        <div id="stageCrossword" class="playArea">
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-<!-- NO ESCAPE -->
-<div id="stageNo" class="playArea">
-<div id="question">QUESTION_PLACEHOLDER</div>
+          <div class="cwWrap">
+            <div class="panel" style="margin:0;">
+              <div style="font-weight:900; margin-bottom:6px;" id="cwTitle">CRUCIVERBA_TITLE_PLACEHOLDER</div>
+              <div class="muted" id="cwSubtitle">CRUCIVERBA_SUBTITLE_PLACEHOLDER</div>
+            </div>
 
-<button id="btnMaybe" class="primary">?</button>
-<button id="btnNo" class="ghost">NO</button>
-</div>
+            <div id="cwGrid" class="cwGrid" aria-label="cruciverba"></div>
 
-<!-- FINAL -->
-<div id="stageFinal" class="playArea">
-<div class="big" id="countdown"></div>
-<div id="finalText">FINAL_TEXT_PLACEHOLDER</div>
+            <div class="panel" style="margin:0;">
+              <div style="font-weight:900; margin-bottom:6px;">Definizioni</div>
+              <ol class="defs" id="defsList"></ol>
 
-<audio controls>
-<source src="song.mp3" type="audio/mpeg">
-</audio>
-</div>
+              <div class="row" style="margin-top:12px;">
+                <button class="btnGhost" id="btnClear">RESET</button>
+                <button class="btnPrimary btnDisabled" id="btnVerify" disabled>VERIFICA</button>
+              </div>
 
-</div>
-</div>
+              <div class="muted" id="cwStatus">CRUCIVERBA_STATUS_PLACEHOLDER</div>
+            </div>
+          </div>
+        </div>
 
-<script>
+        <!-- STAGE 2: NO scappa -->
+        <div id="stageNoEscape" class="playArea">
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-/******** CONFIG ********/
+          <div class="questionWrap">
+            <div class="question" id="questionText">QUESTION_PLACEHOLDER</div>
 
-const PASSWORD="egofrigorifero";
-const YES_LINK="https://www.termestufedinerone.it/";
-const FINAL_SECONDS=10;
+            <div class="choices">
+              <div class="leftSlot">
+                <button class="btnPrimary" id="btnMaybe">?</button>
+              </div>
+              <div></div>
+            </div>
 
-/******** BACKGROUND IMG ********/
+            <button class="btnGhost" id="btnNo">NO</button>
 
-const img=new Image();
-img.onload=()=>document.body.style.background=`url('background.jpg') center/cover`;
-img.src="background.jpg";
+            <div class="muted" id="hintText">HINT_PLACEHOLDER</div>
+          </div>
+        </div>
 
-/******** LOGIN ********/
+        <!-- STAGE 3: Final countdown -->
+        <div id="stageFinal" class="playArea">
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-enter.onclick=()=>{
- if(pw.value.toLowerCase()===PASSWORD.toLowerCase()){
-   login.style.display="none";
-   app.style.display="block";
-   stageCross.style.display="block";
-   initCrossword();
- }
-}
+          <div class="panel" style="text-align:center;">
+            <div style="font-weight:950; font-size:18px;" id="finalTitle">FINAL_TITLE_PLACEHOLDER</div>
+            <div class="muted" style="margin-top:8px;" id="finalText">FINAL_TEXT_PLACEHOLDER</div>
+            <div class="bigCountdown" id="countdown">10</div>
+            <div class="muted" style="margin-top:8px;" id="finalHint">FINAL_HINT_PLACEHOLDER</div>
+          </div>
 
-/******** CROSSWORD ********/
+          <div class="panel">
+            <div style="font-weight:900; margin-bottom:8px;">SONG_LABEL_PLACEHOLDER</div>
+            <audio id="songPlayer" controls preload="metadata">
+              <source src="song.mp3" type="audio/mpeg">
+            </audio>
+            <div class="muted" style="margin-top:6px;">(metti <b>song.mp3</b> nella root della repo)</div>
+          </div>
+        </div>
 
-const rows=5, cols=12;
-const solution=new Map();
+        <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
+      </section>
+    </div>
+  </div>
 
-function place(r,c,w){
- w=w.toUpperCase();
- for(let i=0;i<w.length;i++)
-   solution.set(`${r},${c+i}`,w[i]);
-}
+  <script>
+    // =======================
+    // CONFIG
+    // =======================
+    const PASSWORD = "egofrigorifero"; // case-insensitive
+    const BACKGROUND_IMAGE = "background.jpg"; // opzionale in root
 
-place(1,5,"LATTE");
-place(2,5,"SCII");
-place(3,4,"PIRATA");
-place(4,7,"MARLEY");
-place(5,1,"STEFANO");
+    const CW_TITLE = "CRUCIVERBA_TITLE_PLACEHOLDER";
+    const CW_SUBTITLE = "CRUCIVERBA_SUBTITLE_PLACEHOLDER";
+    const CW_STATUS_IDLE = "CRUCIVERBA_STATUS_PLACEHOLDER";
+    const CW_STATUS_FILL_ALL = "COMPILA_TUTTE_LE_CASELLE_PLACEHOLDER";
+    const CW_STATUS_WRONG = "QUALCOSA_NON_TORNA_PLACEHOLDER";
+    const CW_STATUS_OK = "OK_PLACEHOLDER";
 
-const defsData=[
-["R1C5","sono un fiocco di ..."],
-["R2C5","mi ci sono spaccato il ginocchio"],
-["R3C4","lo sarò domenica"],
-["R4C7","ha altri 2 mesi di vita"],
-["R5C1","mi fa sempre fesso quando parla di soldi"]
-];
+    const QUESTION_TEXT = "Vuoi...essere la mia fid... svalentino...)";
+    const MAYBE_LABEL_INITIAL = "?";
+    const MAYBE_LABEL_AFTER = "SI";
+    const NO_LABEL = "NO";
+    const NO_CLICKS_TO_UNLOCK_SI = 4;
 
-function initCrossword(){
+    const FINAL_TITLE = "FINAL_TITLE_PLACEHOLDER";
+    const FINAL_TEXT = "FINAL_TEXT_PLACEHOLDER";
+    const FINAL_HINT = "FINAL_HINT_PLACEHOLDER";
+    const COUNTDOWN_SECONDS = 10;
 
-cwGrid.style.gridTemplateColumns=`repeat(${cols},32px)`;
+    const YES_LINK = "https://example.com"; // lo cambi tu
 
-for(let r=1;r<=rows;r++)
-for(let c=1;c<=cols;c++){
- const k=`${r},${c}`;
- const div=document.createElement("div");
+    // =======================
+    // ELEMENTS
+    // =======================
+    const login = document.getElementById("login");
+    const app   = document.getElementById("app");
+    const pw    = document.getElementById("pw");
+    const btnEnter = document.getElementById("btnEnter");
 
- if(solution.has(k)){
-  const inp=document.createElement("input");
-  inp.className="cwInput";
-  inp.maxLength=1;
-  inp.dataset.k=k;
-  inp.oninput=checkCross;
-  div.appendChild(inp);
- }else div.className="blank";
+    const stageCrossword = document.getElementById("stageCrossword");
+    const stageNoEscape  = document.getElementById("stageNoEscape");
+    const stageFinal     = document.getElementById("stageFinal");
 
- cwGrid.appendChild(div);
-}
+    const cwTitleEl = document.getElementById("cwTitle");
+    const cwSubtitleEl = document.getElementById("cwSubtitle");
+    const cwGridEl = document.getElementById("cwGrid");
+    const defsListEl = document.getElementById("defsList");
+    const cwStatusEl = document.getElementById("cwStatus");
+    const btnVerify = document.getElementById("btnVerify");
+    const btnClear  = document.getElementById("btnClear");
 
-defs.innerHTML="";
-defsData.forEach((d,i)=>{
- defs.innerHTML+=`<li><b>${i+1}</b> [${d[0]}] ${d[1]}</li>`
-});
-}
+    const questionText = document.getElementById("questionText");
+    const btnMaybe = document.getElementById("btnMaybe");
+    const btnNo = document.getElementById("btnNo");
 
-function checkCross(){
- const inputs=document.querySelectorAll(".cwInput");
- let ok=true;
+    const finalTitleEl = document.getElementById("finalTitle");
+    const finalTextEl = document.getElementById("finalText");
+    const finalHintEl = document.getElementById("finalHint");
+    const countdownEl = document.getElementById("countdown");
 
- inputs.forEach(i=>{
-  if(i.value.toUpperCase()!==solution.get(i.dataset.k))
-    ok=false;
- });
+    function vibrate(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {} }
 
- if(ok){
-   stageCross.style.display="none";
-   stageNo.style.display="block";
- }
-}
+    // =======================
+    // OPTIONAL BACKGROUND
+    // =======================
+    (function applyOptionalBackground(){
+      if (!BACKGROUND_IMAGE) return;
+      const img = new Image();
+      img.onload = () => {
+        document.body.style.background =
+          `url('${BACKGROUND_IMAGE}') center / cover no-repeat fixed`;
+      };
+      img.src = BACKGROUND_IMAGE;
+    })();
 
-/******** NO ESCAPE ********/
+    // =======================
+    // LOGIN (case-insensitive)
+    // =======================
+    function enter() {
+      const val = (pw.value || "").trim().toLowerCase();
+      const expected = (PASSWORD || "").trim().toLowerCase();
 
-let noCount=0;
+      if (val === expected) {
+        login.style.display = "none";
+        app.style.display = "grid";
+        stageCrossword.style.display = "block";
+        stageNoEscape.style.display = "none";
+        stageFinal.style.display = "none";
+        initCrosswordUI();
+        vibrate(25);
+      } else {
+        vibrate([40,40,40]);
+        alert("WRONG_PASSWORD_ALERT_PLACEHOLDER");
+      }
+    }
+    btnEnter.addEventListener("click", enter);
+    pw.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(); });
 
-btnNo.onclick=()=>{
- noCount++;
- btnNo.style.left=Math.random()*200+"px";
- btnNo.style.top=Math.random()*200+"px";
- btnNo.style.bottom="auto";
+    // =======================
+    // CROSSWORD: layout per TIAMO verticale in colonna 7
+    // =======================
+    const CW_ROWS = 5;
+    const CW_COLS = 12;
 
- if(noCount>=4) btnMaybe.textContent="SI";
-}
+    const CW_SOLUTION = new Map();
+    function placeWord(r, startC, word){
+      word = word.toUpperCase();
+      for(let i=0; i<word.length; i++){
+        CW_SOLUTION.set(`${r},${startC+i}`, word[i]);
+      }
+    }
 
-btnMaybe.onclick=()=>{
- if(btnMaybe.textContent!=="SI") return;
+    // TIAMO verticale sulla colonna 7:
+    // r1 col7 = T (LATTE, 3a lettera)
+    // r2 col7 = I (SCII, 3a lettera)
+    // r3 col7 = A (PIRATA, 4a lettera)
+    // r4 col7 = M (MARLEY, 1a lettera)
+    // r5 col7 = O (STEFANO, 7a lettera)
+    placeWord(1, 5, "LATTE");
+    placeWord(2, 5, "SCII");
+    placeWord(3, 4, "PIRATA");
+    placeWord(4, 7, "MARLEY");
+    placeWord(5, 1, "STEFANO");
 
- stageNo.style.display="none";
- stageFinal.style.display="block";
- startCountdown();
-}
+    // Hints ordinati “in ordine cruciverba” (senza numeri)
+    const DEFINITIONS = [
+      { clue: "sono un fiocco di ...", answer: "LATTE" },
+      { clue: "mi ci sono spaccato il ginocchio", answer: "SCII" },
+      { clue: "lo sarò domenica", answer: "PIRATA" },
+      { clue: "ha altri 2 mesi di vita (massimo)", answer: "MARLEY" },
+      { clue: "mi fa sempre fesso quando parla di soldi", answer: "STEFANO" },
+    ];
 
-/******** FINAL ********/
+    function initCrosswordUI(){
+      cwTitleEl.textContent = CW_TITLE;
+      cwSubtitleEl.textContent = CW_SUBTITLE;
+      cwStatusEl.textContent = CW_STATUS_IDLE;
 
-function startCountdown(){
- let t=FINAL_SECONDS;
- countdown.textContent=t;
+      // Hints
+      defsListEl.innerHTML = "";
+      for(const d of DEFINITIONS){
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="muted">${d.clue}</span>`;
+        defsListEl.appendChild(li);
+      }
 
- const timer=setInterval(()=>{
-   t--;
-   countdown.textContent=t;
-   if(t<=0){
-     clearInterval(timer);
-     window.open(YES_LINK,"_blank");
-   }
- },1000);
-}
+      // Grid
+      cwGridEl.style.gridTemplateColumns = `repeat(${CW_COLS}, 34px)`;
+      cwGridEl.innerHTML = "";
 
-</script>
+      for(let r=1; r<=CW_ROWS; r++){
+        for(let c=1; c<=CW_COLS; c++){
+          const key = `${r},${c}`;
+          const isActive = CW_SOLUTION.has(key);
+
+          const cell = document.createElement("div");
+          cell.className = "cwCell" + (isActive ? "" : " blank");
+
+          if(isActive){
+            const inp = document.createElement("input");
+            inp.className = "cwInput";
+            inp.maxLength = 1;
+            inp.inputMode = "text";
+            inp.autocapitalize = "none";
+            inp.autocomplete = "off";
+            inp.spellcheck = false;
+            inp.dataset.key = key;
+            inp.dataset.solution = CW_SOLUTION.get(key);
+
+            inp.addEventListener("input", () => {
+              // 1 char uppercase
+              inp.value = (inp.value || "").toUpperCase().slice(0,1);
+              validateCell(inp);
+              updateVerifyButtonState();
+              autoAdvance(inp);
+            });
+
+            inp.addEventListener("keydown", (e) => {
+              if(e.key === "Backspace" && !inp.value){
+                focusPrev(inp);
+              }
+            });
+
+            cell.appendChild(inp);
+          }
+
+          cwGridEl.appendChild(cell);
+        }
+      }
+
+      // Buttons
+      btnVerify.disabled = true;
+      btnVerify.classList.add("btnDisabled");
+      btnVerify.onclick = verifyCrossword;
+
+      btnClear.onclick = () => {
+        for(const inp of getInputs()){
+          inp.value = "";
+          inp.classList.remove("ok","bad");
+        }
+        cwStatusEl.textContent = CW_STATUS_IDLE;
+        updateVerifyButtonState();
+        const first = getInputs()[0];
+        if(first) first.focus();
+      };
+
+      // focus first
+      const first = getInputs()[0];
+      if(first) first.focus();
+    }
+
+    function getInputs(){
+      return Array.from(cwGridEl.querySelectorAll(".cwInput"));
+    }
+
+    function validateCell(inp){
+      const sol = inp.dataset.solution;
+      const v = (inp.value || "").toUpperCase();
+
+      inp.classList.remove("ok","bad");
+      if(!v) return;
+      if(v === sol) inp.classList.add("ok");
+      else inp.classList.add("bad");
+    }
+
+    function autoAdvance(inp){
+      if(!inp.value) return;
+      const inputs = getInputs();
+      const idx = inputs.indexOf(inp);
+      if(idx >= 0 && idx < inputs.length - 1){
+        inputs[idx + 1].focus();
+        inputs[idx + 1].select?.();
+      }
+    }
+
+    function focusPrev(inp){
+      const inputs = getInputs();
+      const idx = inputs.indexOf(inp);
+      if(idx > 0){
+        inputs[idx - 1].focus();
+        inputs[idx - 1].select?.();
+      }
+    }
+
+    function allFilled(){
+      for(const inp of getInputs()){
+        if(!(inp.value || "").trim()) return false;
+      }
+      return true;
+    }
+
+    function allCorrect(){
+      for(const inp of getInputs()){
+        if(((inp.value||"").toUpperCase()) !== inp.dataset.solution) return false;
+      }
+      return true;
+    }
+
+    function updateVerifyButtonState(){
+      const filled = allFilled();
+      btnVerify.disabled = !filled;
+      btnVerify.classList.toggle("btnDisabled", !filled);
+      if(!filled) cwStatusEl.textContent = CW_STATUS_FILL_ALL;
+      else cwStatusEl.textContent = CW_STATUS_IDLE;
+    }
+
+    function verifyCrossword(){
+      if(!allFilled()){
+        cwStatusEl.textContent = CW_STATUS_FILL_ALL;
+        vibrate([40,40]);
+        return;
+      }
+
+      // re-validate all cells (in caso uno abbia incollato roba strana)
+      for(const inp of getInputs()) validateCell(inp);
+
+      if(allCorrect()){
+        cwStatusEl.textContent = CW_STATUS_OK;
+        vibrate([30,30,70]);
+        goToNoEscapeStage();
+      } else {
+        cwStatusEl.textContent = CW_STATUS_WRONG;
+        vibrate([40,40,40]);
+      }
+    }
+
+    function goToNoEscapeStage(){
+      stageCrossword.style.display = "none";
+      stageNoEscape.style.display = "block";
+      initNoEscapeStage();
+    }
+
+    // =======================
+    // STAGE 2: NO SCAPPA
+    // =======================
+    let noClicks = 0;
+
+    function initNoEscapeStage(){
+      noClicks = 0;
+      questionText.textContent = QUESTION_TEXT;
+      btnMaybe.textContent = MAYBE_LABEL_INITIAL;
+      btnNo.textContent = NO_LABEL;
+
+      // reset pos
+      btnNo.style.left = "16px";
+      btnNo.style.top = "auto";
+      btnNo.style.bottom = "16px";
+    }
+
+    function moveNoRandom(){
+      const pad = 10;
+      const area = stageNoEscape.getBoundingClientRect();
+      const b = btnNo.getBoundingClientRect();
+
+      const maxX = area.width - b.width - pad;
+      const maxY = area.height - b.height - pad;
+
+      const x = Math.random() * Math.max(10, maxX) + pad;
+      const y = Math.random() * Math.max(10, maxY) + pad;
+
+      btnNo.style.left = x + "px";
+      btnNo.style.top  = y + "px";
+      btnNo.style.bottom = "auto";
+    }
+
+    btnNo.addEventListener("click", () => {
+      noClicks++;
+      if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) btnMaybe.textContent = MAYBE_LABEL_AFTER;
+      moveNoRandom();
+      vibrate(15);
+    });
+
+    btnMaybe.addEventListener("click", () => {
+      if (btnMaybe.textContent.trim() !== MAYBE_LABEL_AFTER) {
+        alert("MAYBE_ACTION_PLACEHOLDER");
+        return;
+      }
+      startFinalCountdown();
+    });
+
+    // =======================
+    // STAGE 3: FINAL COUNTDOWN
+    // =======================
+    let countdownTimer = null;
+
+    function startFinalCountdown(){
+      stageNoEscape.style.display = "none";
+      stageFinal.style.display = "block";
+
+      finalTitleEl.textContent = FINAL_TITLE;
+      finalTextEl.textContent = FINAL_TEXT;
+      finalHintEl.textContent = FINAL_HINT;
+
+      let t = COUNTDOWN_SECONDS;
+      countdownEl.textContent = String(t);
+
+      if(countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        t--;
+        countdownEl.textContent = String(t);
+        if(t <= 0){
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          window.open(YES_LINK, "_blank", "noopener,noreferrer");
+        }
+      }, 1000);
+    }
+  </script>
 </body>
 </html>
