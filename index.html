@@ -54,6 +54,10 @@
       box-shadow: 0 18px 60px rgba(0,0,0,.13);
       overflow:hidden;
       backdrop-filter: blur(10px);
+
+      /* FIX: se su mobile è troppo alto, permetti scroll interno */
+      max-height: calc(100vh - (var(--pad) * 2));
+      overflow: auto;
     }
 
     header{
@@ -169,6 +173,16 @@
       display:grid;
       gap: 12px;
     }
+
+    /* FIX: wrapper scroll orizzontale se sfora */
+    .cwGridScroll{
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+      padding-bottom: 6px;
+    }
+
     .cwGrid{
       display:grid;
       gap: 6px;
@@ -178,7 +192,13 @@
       border-radius: 18px;
       background: rgba(255,255,255,.7);
       border: 1px solid rgba(0,0,0,.08);
+
+      /* FIX: non comprimere, lascia width naturale e centra */
+      width: max-content;
+      margin: 0 auto;
+      max-width: 100%;
     }
+
     .cwCell{
       width: 34px;
       height: 34px;
@@ -255,15 +275,6 @@
     }
     #btnMaybe{ width: 100%; }
     .leftSlot{ position: relative; z-index: 1; }
-
-    /* FINAL */
-    .bigCountdown{
-      font-size: 40px;
-      font-weight: 950;
-      text-align:center;
-      margin-top: 4px;
-    }
-    audio { width: 100%; margin-top: 10px; }
   </style>
 </head>
 
@@ -305,7 +316,10 @@
               <div class="muted" id="cwSubtitle">CRUCIVERBA_SUBTITLE_PLACEHOLDER</div>
             </div>
 
-            <div id="cwGrid" class="cwGrid" aria-label="cruciverba"></div>
+            <!-- FIX: wrapper scrollabile -->
+            <div class="cwGridScroll">
+              <div id="cwGrid" class="cwGrid" aria-label="cruciverba"></div>
+            </div>
 
             <div class="panel" style="margin:0;">
               <div style="font-weight:900; margin-bottom:6px;">Definizioni</div>
@@ -343,21 +357,19 @@
           </div>
         </div>
 
-        <!-- STAGE 3: Final countdown -->
         <!-- STAGE 3: Pagina intermedia -->
-<div id="stageFinal" class="playArea">
-  <div class="floating" style="top:14px; left:16px;">💗</div>
-  <div class="floating" style="top:36px; right:20px;">💘</div>
-  <div class="floating" style="bottom:20px; left:40px;">💞</div>
+        <div id="stageFinal" class="playArea">
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-  <div class="panel" style="text-align:center;">
-    <div style="font-weight:950; font-size:18px;" id="finalTitle">FINAL_TITLE_PLACEHOLDER</div>
-    <div class="muted" style="margin-top:8px;" id="finalText">FINAL_TEXT_PLACEHOLDER</div>
-    <div class="muted" style="margin-top:8px;" id="finalHint">FINAL_HINT_PLACEHOLDER</div>
-    <button class="btnPrimary" id="btnGo" style="margin-top:12px;">VAI</button>
-  </div>
-</div>
-
+          <div class="panel" style="text-align:center;">
+            <div style="font-weight:950; font-size:18px;" id="finalTitle">FINAL_TITLE_PLACEHOLDER</div>
+            <div class="muted" style="margin-top:8px;" id="finalText">FINAL_TEXT_PLACEHOLDER</div>
+            <div class="muted" style="margin-top:8px;" id="finalHint">FINAL_HINT_PLACEHOLDER</div>
+            <button class="btnPrimary" id="btnGo" style="margin-top:12px;">VAI</button>
+          </div>
+        </div>
 
         <div class="muted" id="appFooter">muuuuuu</div>
       </section>
@@ -374,7 +386,7 @@
     const CW_TITLE = "Crucitrota";
     const CW_SUBTITLE = "FACILI";
     const CW_STATUS_IDLE = "";
-    const CW_STATUS_FILL_ALL = "COMPILA_TUTTE_LE_CASELLE_PLACEHOLDER";
+    const CW_STATUS_FILL_ALL = "COMPILA_TUTTE_LE CASELLE_PLACEHOLDER";
     const CW_STATUS_WRONG = "QUALCOSA_NON_TORNA_PLACEHOLDER";
     const CW_STATUS_OK = "OK_PLACEHOLDER";
 
@@ -418,7 +430,7 @@
     const finalTitleEl = document.getElementById("finalTitle");
     const finalTextEl = document.getElementById("finalText");
     const finalHintEl = document.getElementById("finalHint");
-    const countdownEl = document.getElementById("countdown");
+    const btnGo = document.getElementById("btnGo");
 
     function vibrate(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {} }
 
@@ -472,19 +484,12 @@
       }
     }
 
-    // TIAMO verticale sulla colonna 7:
-    // r1 col7 = T (LATTE, 3a lettera)
-    // r2 col7 = I (SCII, 3a lettera)
-    // r3 col7 = A (PIRATA, 4a lettera)
-    // r4 col7 = M (MARLEY, 1a lettera)
-    // r5 col7 = O (STEFANO, 7a lettera)
     placeWord(1, 5, "LATTE");
     placeWord(2, 5, "SCI");
     placeWord(3, 4, "PIRATA");
     placeWord(4, 7, "MARLEY");
     placeWord(5, 1, "STEFANO");
 
-    // Hints ordinati “in ordine cruciverba” (senza numeri)
     const DEFINITIONS = [
       { clue: "sono un fiocco di ...", answer: "LATTE" },
       { clue: "mi ci sono spaccato il ginocchio", answer: "SCII" },
@@ -498,7 +503,6 @@
       cwSubtitleEl.textContent = CW_SUBTITLE;
       cwStatusEl.textContent = CW_STATUS_IDLE;
 
-      // Hints
       defsListEl.innerHTML = "";
       for(const d of DEFINITIONS){
         const li = document.createElement("li");
@@ -506,7 +510,6 @@
         defsListEl.appendChild(li);
       }
 
-      // Grid
       cwGridEl.style.gridTemplateColumns = `repeat(${CW_COLS}, 34px)`;
       cwGridEl.innerHTML = "";
 
@@ -530,7 +533,6 @@
             inp.dataset.solution = CW_SOLUTION.get(key);
 
             inp.addEventListener("input", () => {
-              // 1 char uppercase
               inp.value = (inp.value || "").toUpperCase().slice(0,1);
               validateCell(inp);
               updateVerifyButtonState();
@@ -550,7 +552,6 @@
         }
       }
 
-      // Buttons
       btnVerify.disabled = true;
       btnVerify.classList.add("btnDisabled");
       btnVerify.onclick = verifyCrossword;
@@ -566,7 +567,6 @@
         if(first) first.focus();
       };
 
-      // focus first
       const first = getInputs()[0];
       if(first) first.focus();
     }
@@ -633,7 +633,6 @@
         return;
       }
 
-      // re-validate all cells (in caso uno abbia incollato roba strana)
       for(const inp of getInputs()) validateCell(inp);
 
       if(allCorrect()){
@@ -663,7 +662,7 @@
       btnMaybe.textContent = MAYBE_LABEL_INITIAL;
       btnNo.textContent = NO_LABEL;
 
-      // reset pos
+      // reset completo: deve partire accanto al ?
       btnNo.style.left = "16px";
       btnNo.style.top = "auto";
       btnNo.style.bottom = "16px";
@@ -685,25 +684,22 @@
       btnNo.style.bottom = "auto";
     }
 
-    // NO da bastardi: scappa quando provano anche solo a toccarlo
-btnNo.addEventListener("pointerdown", (e) => {
-  // evita il click "vero"
-  e.preventDefault();
-  e.stopPropagation();
+    // NO da bastardi: al primo tocco resta fermo, dal secondo scappa
+    btnNo.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  noClicks++;
-  if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) btnMaybe.textContent = MAYBE_LABEL_AFTER;
-
-  moveNoRandom();
-  vibrate(15);
-  }, { passive: false });
-
-
-    btnNo.addEventListener("click", () => {
       noClicks++;
       if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) btnMaybe.textContent = MAYBE_LABEL_AFTER;
-      moveNoRandom();
+
+      if (noClicks >= 2) moveNoRandom();
+
       vibrate(15);
+    }, { passive: false });
+
+    // neutralizza click per evitare doppio trigger su mobile
+    btnNo.addEventListener("click", (e) => {
+      e.preventDefault();
     });
 
     btnMaybe.addEventListener("click", () => {
@@ -715,25 +711,20 @@ btnNo.addEventListener("pointerdown", (e) => {
     });
 
     // =======================
-    // STAGE 3: FINAL COUNTDOWN
-    // =======================
-    let countdownTimer = null;
-
     // STAGE 3: Pagina intermedia (niente countdown)
-function startFinalCountdown(){
-  stageNoEscape.style.display = "none";
-  stageFinal.style.display = "block";
+    // =======================
+    function startFinalCountdown(){
+      stageNoEscape.style.display = "none";
+      stageFinal.style.display = "block";
 
-  finalTitleEl.textContent = FINAL_TITLE;
-  finalTextEl.textContent = FINAL_TEXT;
-  finalHintEl.textContent = FINAL_HINT;
+      finalTitleEl.textContent = FINAL_TITLE;
+      finalTextEl.textContent = FINAL_TEXT;
+      finalHintEl.textContent = FINAL_HINT;
 
-  // bottone VAI -> apre link finale
-  btnGo.onclick = () => {
-    window.open(YES_LINK, "_blank", "noopener,noreferrer");
-  };
-}
-
+      btnGo.onclick = () => {
+        window.open(YES_LINK, "_blank", "noopener,noreferrer");
+      };
+    }
   </script>
 </body>
 </html>
