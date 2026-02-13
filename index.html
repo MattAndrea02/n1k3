@@ -9,16 +9,10 @@
     :root {
       --pad: 18px;
       --radius: 22px;
-      --border: rgba(0,0,0,.10);
       --muted: rgba(0,0,0,.62);
-
-      /* Tema San Valentino */
       --pink1: #ff4d8d;
       --pink2: #ff86b3;
-      --cream: #fff7fb;
       --ink: #1a0f16;
-
-      /* Background fallback */
       --bg-fallback: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%, #fff 100%);
     }
 
@@ -33,12 +27,9 @@
       align-items:center;
       justify-content:center;
       padding: var(--pad);
-
-      /* Fallback: se non c'è immagine */
       background: var(--bg-fallback);
     }
 
-    /* Overlay leggero per rendere leggibile il contenuto sopra una foto */
     body::before{
       content:"";
       position: fixed;
@@ -87,6 +78,7 @@
     }
 
     .content{ padding: var(--pad); }
+
     .muted{ color: var(--muted); font-size: 13px; line-height:1.35; }
 
     .panel{
@@ -122,7 +114,6 @@
       -webkit-tap-highlight-color: transparent;
       transition: transform .08s ease;
     }
-
     button:active{ transform: scale(.99); }
 
     .btnPrimary{
@@ -137,12 +128,14 @@
       border: 1px solid rgba(0,0,0,.12);
     }
 
+    /* Stages */
     #app { display:none; }
+    #stageCrossword { display:none; }
+    #stageNoEscape { display:none; }
 
-    /* Area gioco */
+    /* Area gioco / container */
     .playArea{
       position: relative;
-      height: 360px;
       border-radius: var(--radius);
       border: 1px solid rgba(0,0,0,.10);
       background:
@@ -150,11 +143,77 @@
         radial-gradient(180px 180px at 80% 35%, rgba(255,134,179,.16), transparent 60%),
         linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.75));
       overflow:hidden;
+      padding: 14px;
     }
 
-    .questionWrap{
+    .floating{
+      position:absolute;
+      opacity:.14;
+      font-size: 42px;
+      user-select:none;
+      pointer-events:none;
+      filter: blur(.1px);
+    }
+
+    /* Crossword */
+    .cwWrap{
+      display:grid;
+      gap: 12px;
+    }
+    .cwGrid{
+      display:grid;
+      gap: 6px;
+      justify-content:center;
+      align-content:center;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .cwCell{
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .cwCell.blank{
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .cwInput{
+      width: 100%;
       height: 100%;
-      padding: 16px;
+      border: 0;
+      outline: 0;
+      background: rgba(255,255,255,.9);
+      text-align:center;
+      font-weight: 900;
+      font-size: 16px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      padding: 0;
+    }
+    .cwInput.ok{
+      background: rgba(87, 255, 170, .20);
+    }
+    .cwInput.bad{
+      background: rgba(255, 80, 110, .18);
+    }
+
+    .defs{
+      margin:0;
+      padding-left: 16px;
+    }
+    .defs li{ margin: 6px 0; }
+
+    /* NO escape stage */
+    .questionWrap{
+      height: 340px;
+      padding: 10px;
       display:flex;
       flex-direction: column;
       justify-content: center;
@@ -164,7 +223,7 @@
 
     .question{
       font-size: 18px;
-      font-weight: 850;
+      font-weight: 900;
       line-height: 1.25;
       padding: 14px 14px;
       border-radius: 18px;
@@ -178,34 +237,15 @@
       gap: 12px;
     }
 
-    /* Il NO diventa "scappino" assoluto */
     #btnNo{
       position: absolute;
       left: 16px;
       bottom: 16px;
-      width: calc(50% - 22px); /* allineamento visivo iniziale */
+      width: calc(50% - 22px);
     }
 
-    /* Il ? (poi SI) resta nella griglia, stabile */
-    #btnMaybe{
-      width: 100%;
-    }
-
-    /* contenitore per la colonna sinistra, per posizionare bene il ? */
-    .leftSlot{
-      position: relative;
-      z-index: 1;
-    }
-
-    /* piccola decorazione */
-    .floating{
-      position:absolute;
-      opacity:.14;
-      font-size: 42px;
-      user-select:none;
-      pointer-events:none;
-      filter: blur(.1px);
-    }
+    #btnMaybe{ width: 100%; }
+    .leftSlot{ position: relative; z-index: 1; }
   </style>
 </head>
 
@@ -217,70 +257,94 @@
     </header>
 
     <div class="content">
-      <!-- LOGIN (filtro fake) -->
+      <!-- LOGIN -->
       <section id="login" class="grid">
         <div class="panel">
-          <div class="muted" id="loginHint">Egoriferito oppure...?</div>
+          <div class="muted" id="loginHint">LOGIN_HINT_PLACEHOLDER</div>
         </div>
 
-        <input id="pw" type="password" inputmode="text" placeholder="Risposta" />
-        <button class="btnPrimary" id="btnEnter">Entra</button>
+        <input id="pw" type="password" inputmode="text" placeholder="PASSWORD_INPUT_PLACEHOLDER" />
+        <button class="btnPrimary" id="btnEnter">ENTER_BUTTON_LABEL_PLACEHOLDER</button>
 
         <div class="muted" id="loginFooter"></div>
       </section>
 
-      <!-- APP -->
+      <!-- APP (container per stages) -->
       <section id="app" class="grid">
         <div class="panel">
-          <div class="muted" id="introLabel">Non so fare tante cose, ma almeno ne sfruttiamo una per qualcosa di romantico (forse) ( bucchì )</div>
+          <div class="muted" id="introLabel">INTRO_LABEL_PLACEHOLDER</div>
         </div>
 
-        <div class="playArea" id="playArea">
-          <!-- decorazioni leggere -->
+        <!-- STAGE 1: Crossword -->
+        <div id="stageCrossword" class="playArea">
+          <div class="floating" style="top:14px; left:16px;">💗</div>
+          <div class="floating" style="top:36px; right:20px;">💘</div>
+          <div class="floating" style="bottom:20px; left:40px;">💞</div>
+
+          <div class="cwWrap">
+            <div class="panel" style="margin:0;">
+              <div style="font-weight:900; margin-bottom:6px;">CRUCIVERBA_TITLE_PLACEHOLDER</div>
+              <div class="muted">CRUCIVERBA_SUBTITLE_PLACEHOLDER</div>
+            </div>
+
+            <div id="cwGrid" class="cwGrid" aria-label="cruciverba"></div>
+
+            <div class="panel" style="margin:0;">
+              <div style="font-weight:900; margin-bottom:6px;">Definizioni</div>
+              <ol class="defs" id="defsList"></ol>
+              <div class="muted" id="cwStatus">CRUCIVERBA_STATUS_PLACEHOLDER</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 2: NO scappa -->
+        <div id="stageNoEscape" class="playArea">
           <div class="floating" style="top:14px; left:16px;">💗</div>
           <div class="floating" style="top:36px; right:20px;">💘</div>
           <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
           <div class="questionWrap">
-            <div class="question" id="questionText">Vuoi essere... la mia fid... s. valentino?</div>
+            <div class="question" id="questionText">QUESTION_PLACEHOLDER</div>
 
             <div class="choices">
               <div class="leftSlot">
-                <button class="btnPrimary" id="btnMaybe">MAYBE_LABEL_PLACEHOLDER</button>
+                <button class="btnPrimary" id="btnMaybe">?</button>
               </div>
-              <!-- il NO viene posizionato assoluto, quindi qui mettiamo solo uno "slot" visivo -->
               <div></div>
             </div>
 
-            <!-- NO assoluto (scappa) -->
             <button class="btnGhost" id="btnNo">NO</button>
 
-            <div class="muted" id="hintText"></div>
+            <div class="muted" id="hintText">HINT_PLACEHOLDER</div>
           </div>
         </div>
 
-        <div class="muted" id="appFooter">suca</div>
+        <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
       </section>
     </div>
   </div>
 
   <script>
     // =======================
-    // CONFIG (placeholders)
+    // CONFIG
     // =======================
-    const PASSWORD = "egofrigorifero";
+    const PASSWORD = "egofrigorifero"; // CASE-INSENSITIVE
+    const BACKGROUND_IMAGE = "background.jpg"; // opzionale in root
 
-    // sfondo: metti un file in root repo (es: background.jpg) e aggiorna qui
-    const BACKGROUND_IMAGE = "background.jpg"; // oppure "bg.png" ecc.
+    // Stage 1 (crossword)
+    const CW_TITLE = "CRUCIVERBA_TITLE_PLACEHOLDER";
+    const CW_SUBTITLE = "CRUCIVERBA_SUBTITLE_PLACEHOLDER";
+    const CW_STATUS_TEXT = "CRUCIVERBA_STATUS_PLACEHOLDER";
 
-    // domanda e testi (placeholder)
-    const QUESTION_TEXT = "QUESTION_PLACEHOLDER";
-    const MAYBE_LABEL_INITIAL = "?";     // richiesto: un bottone con "?"
-    const MAYBE_LABEL_AFTER = "SI";      // dopo 4 NO
+    // Stage 2 (NO scappa)
+    const QUESTION_TEXT = "Egoriferito oppure...?"; // metti qui la domanda
+    const MAYBE_LABEL_INITIAL = "?";
+    const MAYBE_LABEL_AFTER = "SI";
     const NO_LABEL = "NO";
-
-    // UX
     const NO_CLICKS_TO_UNLOCK_SI = 4;
+
+    // Quando preme SI (cioè quando ? è diventato SI) apre questo link
+    const YES_LINK = "https://example.com"; // <-- lo cambi tu
 
     // =======================
     // ELEMENTS
@@ -290,39 +354,53 @@
     const pw    = document.getElementById("pw");
     const btnEnter = document.getElementById("btnEnter");
 
-    const playArea = document.getElementById("playArea");
+    const stageCrossword = document.getElementById("stageCrossword");
+    const stageNoEscape  = document.getElementById("stageNoEscape");
+
+    const introLabel = document.getElementById("introLabel");
+    const headerTitle = document.getElementById("headerTitle");
+    const headerBadge = document.getElementById("headerBadge");
+
+    const cwGridEl = document.getElementById("cwGrid");
+    const defsListEl = document.getElementById("defsList");
+    const cwStatusEl = document.getElementById("cwStatus");
+
     const questionText = document.getElementById("questionText");
     const btnMaybe = document.getElementById("btnMaybe");
     const btnNo = document.getElementById("btnNo");
+    const playAreaNoEscape = stageNoEscape;
+
+    function vibrate(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {} }
 
     // =======================
-    // BACKGROUND IMAGE (optional)
+    // OPTIONAL BACKGROUND
     // =======================
     (function applyOptionalBackground(){
       if (!BACKGROUND_IMAGE) return;
-
       const img = new Image();
       img.onload = () => {
         document.body.style.background =
           `url('${BACKGROUND_IMAGE}') center / cover no-repeat fixed`;
       };
-      img.onerror = () => {
-        // se non esiste, resta il fallback già in CSS
-      };
       img.src = BACKGROUND_IMAGE;
     })();
 
     // =======================
-    // LOGIN LOGIC
+    // LOGIN (case-insensitive)
     // =======================
     function enter() {
-      const val = (pw.value || "").trim();
-      if (val === PASSWORD) {
+      const val = (pw.value || "").trim().toLowerCase();
+      const expected = (PASSWORD || "").trim().toLowerCase();
+
+      if (val === expected) {
         login.style.display = "none";
         app.style.display = "grid";
-        try { if (navigator.vibrate) navigator.vibrate(25); } catch(e) {}
+        stageCrossword.style.display = "block";
+        stageNoEscape.style.display = "none";
+        initCrosswordUI();
+        vibrate(25);
       } else {
-        try { if (navigator.vibrate) navigator.vibrate([40,40,40]); } catch(e) {}
+        vibrate([40,40,40]);
         alert("WRONG_PASSWORD_ALERT_PLACEHOLDER");
       }
     }
@@ -330,25 +408,195 @@
     pw.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(); });
 
     // =======================
-    // GAME 1: NO scappa, dopo 4 click '?' -> 'SI'
+    // CROSSWORD LAYOUT
+    // Colonna centrale (x=7) forma: T I A M O
+    // =======================
+    const CW_ROWS = 5;
+    const CW_COLS = 12;
+    const CW_MID_COL = 7; // 1-based (colonna centrale)
+    // Mappa celle attive: key "r,c" (1-based) -> lettera soluzione
+    const CW_SOLUTION = new Map();
+
+    // Helper: piazza una parola orizzontale alla riga r, starting col startC (1-based)
+    function placeWord(r, startC, word){
+      for(let i=0; i<word.length; i++){
+        CW_SOLUTION.set(`${r},${startC+i}`, word[i].toUpperCase());
+      }
+    }
+
+    // Piazzamento parole (vedi spiegazione sopra)
+    // Row 1: LATTE con T sulla colonna 7 (3a lettera)
+    placeWord(1, 5, "LATTE");   // col 7 = T
+    // Row 2: SCII con I sulla colonna 7 (3a lettera)
+    placeWord(2, 5, "SCII");    // col 7 = I
+    // Row 3: PIRATA con A sulla colonna 7 (4a lettera)
+    placeWord(3, 4, "PIRATA");  // col 7 = A
+    // Row 4: MARLEY con M sulla colonna 7 (1a lettera)
+    placeWord(4, 7, "MARLEY");  // col 7 = M
+    // Row 5: STEFANO con O sulla colonna 7 (ultima lettera)
+    placeWord(5, 1, "STEFANO"); // col 7 = O
+
+    const DEFINITIONS = [
+      { clue: "mi fa sempre fesso quando parla di soldi", answer: "STEFANO" },
+      { clue: "ha altri 2 mesi di vita (massimo)", answer: "MARLEY" },
+      { clue: "sono un fiocco di ...", answer: "LATTE" },
+      { clue: "lo sarò domenica", answer: "PIRATA" },
+      { clue: "mi ci sono spaccato il ginocchio", answer: "SCII" },
+    ];
+
+    function initCrosswordUI(){
+      // Header placeholders (se vuoi)
+      // headerTitle.textContent = "...";
+      // headerBadge.textContent = "...";
+      // introLabel.textContent = "...";
+
+      // Titoli cruciverba (se vuoi usarli)
+      // Qui lascio solo placeholder: se vuoi, mettili nel DOM via HTML
+      cwStatusEl.textContent = CW_STATUS_TEXT;
+
+      // Definizioni
+      defsListEl.innerHTML = "";
+      for(const d of DEFINITIONS){
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="muted">${d.clue}</span>`;
+        defsListEl.appendChild(li);
+      }
+
+      // Griglia
+      cwGridEl.style.gridTemplateColumns = `repeat(${CW_COLS}, 34px)`;
+      cwGridEl.innerHTML = "";
+
+      // Creiamo celle
+      for(let r=1; r<=CW_ROWS; r++){
+        for(let c=1; c<=CW_COLS; c++){
+          const key = `${r},${c}`;
+          const isActive = CW_SOLUTION.has(key);
+
+          const cell = document.createElement("div");
+          cell.className = "cwCell" + (isActive ? "" : " blank");
+
+          if(isActive){
+            const inp = document.createElement("input");
+            inp.className = "cwInput";
+            inp.maxLength = 1;
+            inp.inputMode = "text";
+            inp.autocapitalize = "none";
+            inp.autocomplete = "off";
+            inp.spellcheck = false;
+            inp.dataset.key = key;
+            inp.dataset.solution = CW_SOLUTION.get(key);
+
+            inp.addEventListener("input", (e) => {
+              const v = (inp.value || "").toUpperCase();
+              inp.value = v;
+              validateCrosswordCell(inp);
+              maybeAdvanceToNext(inp);
+              checkCrosswordComplete();
+            });
+
+            inp.addEventListener("keydown", (e) => {
+              // Backspace: se vuoto torna indietro
+              if(e.key === "Backspace" && !inp.value){
+                focusPrevCell(inp);
+              }
+            });
+
+            cell.appendChild(inp);
+          }
+
+          cwGridEl.appendChild(cell);
+        }
+      }
+
+      // focus prima casella utile
+      const first = cwGridEl.querySelector(".cwInput");
+      if(first) first.focus();
+    }
+
+    function validateCrosswordCell(inp){
+      const sol = inp.dataset.solution;
+      const v = (inp.value || "").toUpperCase();
+
+      inp.classList.remove("ok","bad");
+
+      if(!v) return;
+      if(v === sol) inp.classList.add("ok");
+      else inp.classList.add("bad");
+    }
+
+    function getAllInputs(){
+      return Array.from(cwGridEl.querySelectorAll(".cwInput"));
+    }
+
+    function maybeAdvanceToNext(inp){
+      if(!inp.value) return;
+      const inputs = getAllInputs();
+      const idx = inputs.indexOf(inp);
+      if(idx >= 0 && idx < inputs.length - 1){
+        inputs[idx + 1].focus();
+        inputs[idx + 1].select();
+      }
+    }
+
+    function focusPrevCell(inp){
+      const inputs = getAllInputs();
+      const idx = inputs.indexOf(inp);
+      if(idx > 0){
+        inputs[idx - 1].focus();
+        inputs[idx - 1].select();
+      }
+    }
+
+    function checkCrosswordComplete(){
+      const inputs = getAllInputs();
+      let allFilled = true;
+      let allCorrect = true;
+
+      for(const inp of inputs){
+        const v = (inp.value || "").toUpperCase();
+        const sol = inp.dataset.solution;
+        if(!v) allFilled = false;
+        if(v !== sol) allCorrect = false;
+      }
+
+      if(allFilled && allCorrect){
+        cwStatusEl.textContent = "OK_PLACEHOLDER";
+        vibrate([30,30,60]);
+        goToNoEscapeStage();
+      } else {
+        // status neutro (senza essere invadente)
+        cwStatusEl.textContent = CW_STATUS_TEXT;
+      }
+    }
+
+    function goToNoEscapeStage(){
+      stageCrossword.style.display = "none";
+      stageNoEscape.style.display = "block";
+      initNoEscapeStage();
+    }
+
+    // =======================
+    // STAGE 2: NO SCAPPA + SI apre link
     // =======================
     let noClicks = 0;
 
-    function setInitialTexts(){
+    function initNoEscapeStage(){
+      noClicks = 0;
       questionText.textContent = QUESTION_TEXT;
       btnMaybe.textContent = MAYBE_LABEL_INITIAL;
       btnNo.textContent = NO_LABEL;
-    }
 
-    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+      // reset pos NO
+      btnNo.style.left = "16px";
+      btnNo.style.top = "auto";
+      btnNo.style.bottom = "16px";
+    }
 
     function moveNoRandom(){
       const pad = 10;
-
-      const area = playArea.getBoundingClientRect();
+      const area = playAreaNoEscape.getBoundingClientRect();
       const b = btnNo.getBoundingClientRect();
 
-      // range disponibile dentro playArea
       const maxX = area.width - b.width - pad;
       const maxY = area.height - b.height - pad;
 
@@ -366,31 +614,22 @@
       }
     }
 
-    // click su NO: scappa sempre, conta fino a 4
     btnNo.addEventListener("click", () => {
       noClicks++;
       unlockYesIfNeeded();
       moveNoRandom();
-      try { if (navigator.vibrate) navigator.vibrate(15); } catch(e) {}
+      vibrate(15);
     });
 
-    // opzionale: se l'utente prova a "beccarlo" e manca, scappa comunque (trolling leggero)
-    playArea.addEventListener("click", (e) => {
-      if (e.target !== btnNo) return;
-      // il click di btnNo è già gestito sopra
-    });
-
-    // click su ?/SI: placeholder (poi ci attacchiamo altro)
     btnMaybe.addEventListener("click", () => {
-      alert("MAYBE_OR_YES_ACTION_PLACEHOLDER");
+      // se è ancora "?" non fare nulla (o puoi mettere un alert placeholder)
+      if (btnMaybe.textContent.trim() !== MAYBE_LABEL_AFTER) {
+        alert("MAYBE_ACTION_PLACEHOLDER");
+        return;
+      }
+      // è diventato SI -> apri link
+      window.open(YES_LINK, "_blank", "noopener,noreferrer");
     });
-
-    // inizializza
-    setInitialTexts();
-
-    // posizionamento iniziale NO: già in CSS, ma dopo il primo click diventa assoluto random
-    // se vuoi farlo scappare già al load, scommenta:
-    // moveNoRandom();
   </script>
 </body>
 </html>
