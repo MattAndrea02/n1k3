@@ -1,635 +1,289 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>APP_TITLE_PLACEHOLDER</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>APP_TITLE_PLACEHOLDER</title>
 
-  <style>
-    :root {
-      --pad: 18px;
-      --radius: 22px;
-      --muted: rgba(0,0,0,.62);
-      --pink1: #ff4d8d;
-      --pink2: #ff86b3;
-      --ink: #1a0f16;
-      --bg-fallback: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%, #fff 100%);
-    }
+<style>
+:root{
+  --pink1:#ff4d8d;
+  --pink2:#ff86b3;
+  --ink:#1a0f16;
+  --muted:rgba(0,0,0,.6);
+  --radius:22px;
+}
 
-    * { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--ink);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: var(--pad);
-      background: var(--bg-fallback);
-    }
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: radial-gradient(900px 600px at 20% 10%, #ffe2ef 0%, #fff 55%);
+  color:var(--ink);
+}
 
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      background:
-        radial-gradient(700px 400px at 80% 20%, rgba(255,77,141,.12), transparent 60%),
-        radial-gradient(800px 500px at 30% 90%, rgba(255,134,179,.14), transparent 60%),
-        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.70));
-      z-index: 0;
-    }
+.card{
+  width:min(520px,100%);
+  background:rgba(255,255,255,.88);
+  border-radius:26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  overflow:hidden;
+}
 
-    .card{
-      position: relative;
-      z-index: 1;
-      width:min(520px, 100%);
-      background: rgba(255,255,255,.85);
-      border: 1px solid rgba(255,255,255,.35);
-      border-radius: 26px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.13);
-      overflow:hidden;
-      backdrop-filter: blur(10px);
-    }
+header{
+  padding:14px 18px;
+  background:linear-gradient(90deg,var(--pink1),var(--pink2));
+  color:#fff;
+  font-weight:800;
+}
 
-    header{
-      padding: 16px var(--pad);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      color: #fff;
-      background: linear-gradient(90deg, var(--pink1), var(--pink2));
-    }
+.content{padding:18px; display:grid; gap:12px;}
 
-    header h1{
-      margin:0;
-      font-size: 18px;
-      line-height: 1.2;
-      letter-spacing: .2px;
-    }
+input,button{
+  padding:14px;
+  border-radius:16px;
+  font-size:16px;
+}
 
-    header .small{
-      font-size: 12px;
-      opacity:.9;
-      white-space: nowrap;
-    }
+input{border:1px solid #ddd;}
+button{border:0; font-weight:900; cursor:pointer}
 
-    .content{ padding: var(--pad); }
+.primary{
+  background:linear-gradient(90deg,var(--pink1),var(--pink2));
+  color:#fff;
+}
+.ghost{
+  background:#fff;
+  border:1px solid #ccc;
+}
 
-    .muted{ color: var(--muted); font-size: 13px; line-height:1.35; }
+.panel{
+  background:rgba(255,255,255,.7);
+  border-radius:18px;
+  padding:12px;
+}
 
-    .panel{
-      border: 1px solid rgba(0,0,0,.08);
-      border-radius: var(--radius);
-      padding: 14px;
-      background: rgba(255,255,255,.65);
-    }
+.playArea{
+  position:relative;
+  padding:12px;
+  border-radius:18px;
+  border:1px solid #ddd;
+  background:#fff;
+}
 
-    .grid{
-      display:grid;
-      gap: 12px;
-    }
+/* crossword */
+.cwGrid{
+  display:grid;
+  gap:4px;
+  justify-content:center;
+}
+.cwCell{width:32px;height:32px}
+.cwInput{
+  width:100%;height:100%;
+  text-align:center;
+  font-weight:900;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+.blank{visibility:hidden}
 
-    input, button{
-      width:100%;
-      font-size:16px;
-      padding: 14px 14px;
-      border-radius: 16px;
-    }
+/* stages */
+#app,#stageCross,#stageNo,#stageFinal{display:none}
 
-    input{
-      border: 1px solid rgba(0,0,0,.12);
-      outline: none;
-      background: rgba(255,255,255,.9);
-    }
+/* escape NO */
+#btnNo{
+  position:absolute;
+  left:20px;
+  bottom:20px;
+}
 
-    button{
-      border: 0;
-      font-weight: 850;
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform .08s ease;
-    }
-    button:active{ transform: scale(.99); }
-
-    .btnPrimary{
-      background: linear-gradient(90deg, var(--pink1), var(--pink2));
-      color:#fff;
-      box-shadow: 0 10px 24px rgba(255,77,141,.25);
-    }
-
-    .btnGhost{
-      background: rgba(255,255,255,.85);
-      color: var(--ink);
-      border: 1px solid rgba(0,0,0,.12);
-    }
-
-    /* Stages */
-    #app { display:none; }
-    #stageCrossword { display:none; }
-    #stageNoEscape { display:none; }
-
-    /* Area gioco / container */
-    .playArea{
-      position: relative;
-      border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.10);
-      background:
-        radial-gradient(120px 120px at 20% 25%, rgba(255,77,141,.14), transparent 60%),
-        radial-gradient(180px 180px at 80% 35%, rgba(255,134,179,.16), transparent 60%),
-        linear-gradient(to bottom, rgba(255,255,255,.55), rgba(255,255,255,.75));
-      overflow:hidden;
-      padding: 14px;
-    }
-
-    .floating{
-      position:absolute;
-      opacity:.14;
-      font-size: 42px;
-      user-select:none;
-      pointer-events:none;
-      filter: blur(.1px);
-    }
-
-    /* Crossword */
-    .cwWrap{
-      display:grid;
-      gap: 12px;
-    }
-    .cwGrid{
-      display:grid;
-      gap: 6px;
-      justify-content:center;
-      align-content:center;
-      padding: 10px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.7);
-      border: 1px solid rgba(0,0,0,.08);
-    }
-    .cwCell{
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,0,0,.04);
-      border: 1px solid rgba(0,0,0,.08);
-    }
-    .cwCell.blank{
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .cwInput{
-      width: 100%;
-      height: 100%;
-      border: 0;
-      outline: 0;
-      background: rgba(255,255,255,.9);
-      text-align:center;
-      font-weight: 900;
-      font-size: 16px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      padding: 0;
-    }
-    .cwInput.ok{
-      background: rgba(87, 255, 170, .20);
-    }
-    .cwInput.bad{
-      background: rgba(255, 80, 110, .18);
-    }
-
-    .defs{
-      margin:0;
-      padding-left: 16px;
-    }
-    .defs li{ margin: 6px 0; }
-
-    /* NO escape stage */
-    .questionWrap{
-      height: 340px;
-      padding: 10px;
-      display:flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 14px;
-      text-align:center;
-    }
-
-    .question{
-      font-size: 18px;
-      font-weight: 900;
-      line-height: 1.25;
-      padding: 14px 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.75);
-      border: 1px solid rgba(0,0,0,.08);
-    }
-
-    .choices{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    #btnNo{
-      position: absolute;
-      left: 16px;
-      bottom: 16px;
-      width: calc(50% - 22px);
-    }
-
-    #btnMaybe{ width: 100%; }
-    .leftSlot{ position: relative; z-index: 1; }
-  </style>
+.big{
+  font-size:36px;
+  font-weight:900;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
-    <header>
-      <h1 id="headerTitle"></h1>
-      <div class="small" id="headerBadge"></div>
-    </header>
+<div class="card">
 
-    <div class="content">
-      <!-- LOGIN -->
-      <section id="login" class="grid">
-        <div class="panel">
-          <div class="muted" id="loginHint">LOGIN_HINT_PLACEHOLDER</div>
-        </div>
+<header>HEADER_PLACEHOLDER</header>
 
-        <input id="pw" type="password" inputmode="text" placeholder="PASSWORD_INPUT_PLACEHOLDER" />
-        <button class="btnPrimary" id="btnEnter">ENTER_BUTTON_LABEL_PLACEHOLDER</button>
+<div class="content">
 
-        <div class="muted" id="loginFooter"></div>
-      </section>
+<!-- LOGIN -->
+<div id="login">
+  <div class="panel">LOGIN_HINT_PLACEHOLDER</div>
+  <input id="pw" placeholder="PASSWORD_INPUT"/>
+  <button id="enter" class="primary">ENTRA</button>
+</div>
 
-      <!-- APP (container per stages) -->
-      <section id="app" class="grid">
-        <div class="panel">
-          <div class="muted" id="introLabel">INTRO_LABEL_PLACEHOLDER</div>
-        </div>
+<!-- APP -->
+<div id="app">
 
-        <!-- STAGE 1: Crossword -->
-        <div id="stageCrossword" class="playArea">
-          <div class="floating" style="top:14px; left:16px;">💗</div>
-          <div class="floating" style="top:36px; right:20px;">💘</div>
-          <div class="floating" style="bottom:20px; left:40px;">💞</div>
+<!-- CROSSWORD -->
+<div id="stageCross" class="playArea">
+<div id="cwGrid" class="cwGrid"></div>
+<ol id="defs"></ol>
+<div id="cwStatus"></div>
+</div>
 
-          <div class="cwWrap">
-            <div class="panel" style="margin:0;">
-              <div style="font-weight:900; margin-bottom:6px;">CRUCIVERBA_TITLE_PLACEHOLDER</div>
-              <div class="muted">CRUCIVERBA_SUBTITLE_PLACEHOLDER</div>
-            </div>
+<!-- NO ESCAPE -->
+<div id="stageNo" class="playArea">
+<div id="question">QUESTION_PLACEHOLDER</div>
 
-            <div id="cwGrid" class="cwGrid" aria-label="cruciverba"></div>
+<button id="btnMaybe" class="primary">?</button>
+<button id="btnNo" class="ghost">NO</button>
+</div>
 
-            <div class="panel" style="margin:0;">
-              <div style="font-weight:900; margin-bottom:6px;">Definizioni</div>
-              <ol class="defs" id="defsList"></ol>
-              <div class="muted" id="cwStatus">CRUCIVERBA_STATUS_PLACEHOLDER</div>
-            </div>
-          </div>
-        </div>
+<!-- FINAL -->
+<div id="stageFinal" class="playArea">
+<div class="big" id="countdown"></div>
+<div id="finalText">FINAL_TEXT_PLACEHOLDER</div>
 
-        <!-- STAGE 2: NO scappa -->
-        <div id="stageNoEscape" class="playArea">
-          <div class="floating" style="top:14px; left:16px;">💗</div>
-          <div class="floating" style="top:36px; right:20px;">💘</div>
-          <div class="floating" style="bottom:20px; left:40px;">💞</div>
+<audio controls>
+<source src="song.mp3" type="audio/mpeg">
+</audio>
+</div>
 
-          <div class="questionWrap">
-            <div class="question" id="questionText">QUESTION_PLACEHOLDER</div>
+</div>
+</div>
 
-            <div class="choices">
-              <div class="leftSlot">
-                <button class="btnPrimary" id="btnMaybe">?</button>
-              </div>
-              <div></div>
-            </div>
+<script>
 
-            <button class="btnGhost" id="btnNo">NO</button>
+/******** CONFIG ********/
 
-            <div class="muted" id="hintText">HINT_PLACEHOLDER</div>
-          </div>
-        </div>
+const PASSWORD="egofrigorifero";
+const YES_LINK="https://www.termestufedinerone.it/";
+const FINAL_SECONDS=10;
 
-        <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
-      </section>
-    </div>
-  </div>
+/******** BACKGROUND IMG ********/
 
-  <script>
-    // =======================
-    // CONFIG
-    // =======================
-    const PASSWORD = "egofrigorifero"; // CASE-INSENSITIVE
-    const BACKGROUND_IMAGE = "background.jpg"; // opzionale in root
+const img=new Image();
+img.onload=()=>document.body.style.background=`url('background.jpg') center/cover`;
+img.src="background.jpg";
 
-    // Stage 1 (crossword)
-    const CW_TITLE = "CRUCIVERBA_TITLE_PLACEHOLDER";
-    const CW_SUBTITLE = "CRUCIVERBA_SUBTITLE_PLACEHOLDER";
-    const CW_STATUS_TEXT = "CRUCIVERBA_STATUS_PLACEHOLDER";
+/******** LOGIN ********/
 
-    // Stage 2 (NO scappa)
-    const QUESTION_TEXT = "Egoriferito oppure...?"; // metti qui la domanda
-    const MAYBE_LABEL_INITIAL = "?";
-    const MAYBE_LABEL_AFTER = "SI";
-    const NO_LABEL = "NO";
-    const NO_CLICKS_TO_UNLOCK_SI = 4;
+enter.onclick=()=>{
+ if(pw.value.toLowerCase()===PASSWORD.toLowerCase()){
+   login.style.display="none";
+   app.style.display="block";
+   stageCross.style.display="block";
+   initCrossword();
+ }
+}
 
-    // Quando preme SI (cioè quando ? è diventato SI) apre questo link
-    const YES_LINK = "https://example.com"; // <-- lo cambi tu
+/******** CROSSWORD ********/
 
-    // =======================
-    // ELEMENTS
-    // =======================
-    const login = document.getElementById("login");
-    const app   = document.getElementById("app");
-    const pw    = document.getElementById("pw");
-    const btnEnter = document.getElementById("btnEnter");
+const rows=5, cols=12;
+const solution=new Map();
 
-    const stageCrossword = document.getElementById("stageCrossword");
-    const stageNoEscape  = document.getElementById("stageNoEscape");
+function place(r,c,w){
+ w=w.toUpperCase();
+ for(let i=0;i<w.length;i++)
+   solution.set(`${r},${c+i}`,w[i]);
+}
 
-    const introLabel = document.getElementById("introLabel");
-    const headerTitle = document.getElementById("headerTitle");
-    const headerBadge = document.getElementById("headerBadge");
+place(1,5,"LATTE");
+place(2,5,"SCII");
+place(3,4,"PIRATA");
+place(4,7,"MARLEY");
+place(5,1,"STEFANO");
 
-    const cwGridEl = document.getElementById("cwGrid");
-    const defsListEl = document.getElementById("defsList");
-    const cwStatusEl = document.getElementById("cwStatus");
+const defsData=[
+["R1C5","sono un fiocco di ..."],
+["R2C5","mi ci sono spaccato il ginocchio"],
+["R3C4","lo sarò domenica"],
+["R4C7","ha altri 2 mesi di vita"],
+["R5C1","mi fa sempre fesso quando parla di soldi"]
+];
 
-    const questionText = document.getElementById("questionText");
-    const btnMaybe = document.getElementById("btnMaybe");
-    const btnNo = document.getElementById("btnNo");
-    const playAreaNoEscape = stageNoEscape;
+function initCrossword(){
 
-    function vibrate(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {} }
+cwGrid.style.gridTemplateColumns=`repeat(${cols},32px)`;
 
-    // =======================
-    // OPTIONAL BACKGROUND
-    // =======================
-    (function applyOptionalBackground(){
-      if (!BACKGROUND_IMAGE) return;
-      const img = new Image();
-      img.onload = () => {
-        document.body.style.background =
-          `url('${BACKGROUND_IMAGE}') center / cover no-repeat fixed`;
-      };
-      img.src = BACKGROUND_IMAGE;
-    })();
+for(let r=1;r<=rows;r++)
+for(let c=1;c<=cols;c++){
+ const k=`${r},${c}`;
+ const div=document.createElement("div");
 
-    // =======================
-    // LOGIN (case-insensitive)
-    // =======================
-    function enter() {
-      const val = (pw.value || "").trim().toLowerCase();
-      const expected = (PASSWORD || "").trim().toLowerCase();
+ if(solution.has(k)){
+  const inp=document.createElement("input");
+  inp.className="cwInput";
+  inp.maxLength=1;
+  inp.dataset.k=k;
+  inp.oninput=checkCross;
+  div.appendChild(inp);
+ }else div.className="blank";
 
-      if (val === expected) {
-        login.style.display = "none";
-        app.style.display = "grid";
-        stageCrossword.style.display = "block";
-        stageNoEscape.style.display = "none";
-        initCrosswordUI();
-        vibrate(25);
-      } else {
-        vibrate([40,40,40]);
-        alert("WRONG_PASSWORD_ALERT_PLACEHOLDER");
-      }
-    }
-    btnEnter.addEventListener("click", enter);
-    pw.addEventListener("keydown", (e) => { if (e.key === "Enter") enter(); });
+ cwGrid.appendChild(div);
+}
 
-    // =======================
-    // CROSSWORD LAYOUT
-    // Colonna centrale (x=7) forma: T I A M O
-    // =======================
-    const CW_ROWS = 5;
-    const CW_COLS = 12;
-    const CW_MID_COL = 7; // 1-based (colonna centrale)
-    // Mappa celle attive: key "r,c" (1-based) -> lettera soluzione
-    const CW_SOLUTION = new Map();
+defs.innerHTML="";
+defsData.forEach((d,i)=>{
+ defs.innerHTML+=`<li><b>${i+1}</b> [${d[0]}] ${d[1]}</li>`
+});
+}
 
-    // Helper: piazza una parola orizzontale alla riga r, starting col startC (1-based)
-    function placeWord(r, startC, word){
-      for(let i=0; i<word.length; i++){
-        CW_SOLUTION.set(`${r},${startC+i}`, word[i].toUpperCase());
-      }
-    }
+function checkCross(){
+ const inputs=document.querySelectorAll(".cwInput");
+ let ok=true;
 
-    // Piazzamento parole (vedi spiegazione sopra)
-    // Row 1: LATTE con T sulla colonna 7 (3a lettera)
-    placeWord(1, 5, "LATTE");   // col 7 = T
-    // Row 2: SCII con I sulla colonna 7 (3a lettera)
-    placeWord(2, 5, "SCII");    // col 7 = I
-    // Row 3: PIRATA con A sulla colonna 7 (4a lettera)
-    placeWord(3, 4, "PIRATA");  // col 7 = A
-    // Row 4: MARLEY con M sulla colonna 7 (1a lettera)
-    placeWord(4, 7, "MARLEY");  // col 7 = M
-    // Row 5: STEFANO con O sulla colonna 7 (ultima lettera)
-    placeWord(5, 1, "STEFANO"); // col 7 = O
+ inputs.forEach(i=>{
+  if(i.value.toUpperCase()!==solution.get(i.dataset.k))
+    ok=false;
+ });
 
-    const DEFINITIONS = [
-      { clue: "mi fa sempre fesso quando parla di soldi", answer: "STEFANO" },
-      { clue: "ha altri 2 mesi di vita (massimo)", answer: "MARLEY" },
-      { clue: "sono un fiocco di ...", answer: "LATTE" },
-      { clue: "lo sarò domenica", answer: "PIRATA" },
-      { clue: "mi ci sono spaccato il ginocchio", answer: "SCII" },
-    ];
+ if(ok){
+   stageCross.style.display="none";
+   stageNo.style.display="block";
+ }
+}
 
-    function initCrosswordUI(){
-      // Header placeholders (se vuoi)
-      // headerTitle.textContent = "...";
-      // headerBadge.textContent = "...";
-      // introLabel.textContent = "...";
+/******** NO ESCAPE ********/
 
-      // Titoli cruciverba (se vuoi usarli)
-      // Qui lascio solo placeholder: se vuoi, mettili nel DOM via HTML
-      cwStatusEl.textContent = CW_STATUS_TEXT;
+let noCount=0;
 
-      // Definizioni
-      defsListEl.innerHTML = "";
-      for(const d of DEFINITIONS){
-        const li = document.createElement("li");
-        li.innerHTML = `<span class="muted">${d.clue}</span>`;
-        defsListEl.appendChild(li);
-      }
+btnNo.onclick=()=>{
+ noCount++;
+ btnNo.style.left=Math.random()*200+"px";
+ btnNo.style.top=Math.random()*200+"px";
+ btnNo.style.bottom="auto";
 
-      // Griglia
-      cwGridEl.style.gridTemplateColumns = `repeat(${CW_COLS}, 34px)`;
-      cwGridEl.innerHTML = "";
+ if(noCount>=4) btnMaybe.textContent="SI";
+}
 
-      // Creiamo celle
-      for(let r=1; r<=CW_ROWS; r++){
-        for(let c=1; c<=CW_COLS; c++){
-          const key = `${r},${c}`;
-          const isActive = CW_SOLUTION.has(key);
+btnMaybe.onclick=()=>{
+ if(btnMaybe.textContent!=="SI") return;
 
-          const cell = document.createElement("div");
-          cell.className = "cwCell" + (isActive ? "" : " blank");
+ stageNo.style.display="none";
+ stageFinal.style.display="block";
+ startCountdown();
+}
 
-          if(isActive){
-            const inp = document.createElement("input");
-            inp.className = "cwInput";
-            inp.maxLength = 1;
-            inp.inputMode = "text";
-            inp.autocapitalize = "none";
-            inp.autocomplete = "off";
-            inp.spellcheck = false;
-            inp.dataset.key = key;
-            inp.dataset.solution = CW_SOLUTION.get(key);
+/******** FINAL ********/
 
-            inp.addEventListener("input", (e) => {
-              const v = (inp.value || "").toUpperCase();
-              inp.value = v;
-              validateCrosswordCell(inp);
-              maybeAdvanceToNext(inp);
-              checkCrosswordComplete();
-            });
+function startCountdown(){
+ let t=FINAL_SECONDS;
+ countdown.textContent=t;
 
-            inp.addEventListener("keydown", (e) => {
-              // Backspace: se vuoto torna indietro
-              if(e.key === "Backspace" && !inp.value){
-                focusPrevCell(inp);
-              }
-            });
+ const timer=setInterval(()=>{
+   t--;
+   countdown.textContent=t;
+   if(t<=0){
+     clearInterval(timer);
+     window.open(YES_LINK,"_blank");
+   }
+ },1000);
+}
 
-            cell.appendChild(inp);
-          }
-
-          cwGridEl.appendChild(cell);
-        }
-      }
-
-      // focus prima casella utile
-      const first = cwGridEl.querySelector(".cwInput");
-      if(first) first.focus();
-    }
-
-    function validateCrosswordCell(inp){
-      const sol = inp.dataset.solution;
-      const v = (inp.value || "").toUpperCase();
-
-      inp.classList.remove("ok","bad");
-
-      if(!v) return;
-      if(v === sol) inp.classList.add("ok");
-      else inp.classList.add("bad");
-    }
-
-    function getAllInputs(){
-      return Array.from(cwGridEl.querySelectorAll(".cwInput"));
-    }
-
-    function maybeAdvanceToNext(inp){
-      if(!inp.value) return;
-      const inputs = getAllInputs();
-      const idx = inputs.indexOf(inp);
-      if(idx >= 0 && idx < inputs.length - 1){
-        inputs[idx + 1].focus();
-        inputs[idx + 1].select();
-      }
-    }
-
-    function focusPrevCell(inp){
-      const inputs = getAllInputs();
-      const idx = inputs.indexOf(inp);
-      if(idx > 0){
-        inputs[idx - 1].focus();
-        inputs[idx - 1].select();
-      }
-    }
-
-    function checkCrosswordComplete(){
-      const inputs = getAllInputs();
-      let allFilled = true;
-      let allCorrect = true;
-
-      for(const inp of inputs){
-        const v = (inp.value || "").toUpperCase();
-        const sol = inp.dataset.solution;
-        if(!v) allFilled = false;
-        if(v !== sol) allCorrect = false;
-      }
-
-      if(allFilled && allCorrect){
-        cwStatusEl.textContent = "OK_PLACEHOLDER";
-        vibrate([30,30,60]);
-        goToNoEscapeStage();
-      } else {
-        // status neutro (senza essere invadente)
-        cwStatusEl.textContent = CW_STATUS_TEXT;
-      }
-    }
-
-    function goToNoEscapeStage(){
-      stageCrossword.style.display = "none";
-      stageNoEscape.style.display = "block";
-      initNoEscapeStage();
-    }
-
-    // =======================
-    // STAGE 2: NO SCAPPA + SI apre link
-    // =======================
-    let noClicks = 0;
-
-    function initNoEscapeStage(){
-      noClicks = 0;
-      questionText.textContent = QUESTION_TEXT;
-      btnMaybe.textContent = MAYBE_LABEL_INITIAL;
-      btnNo.textContent = NO_LABEL;
-
-      // reset pos NO
-      btnNo.style.left = "16px";
-      btnNo.style.top = "auto";
-      btnNo.style.bottom = "16px";
-    }
-
-    function moveNoRandom(){
-      const pad = 10;
-      const area = playAreaNoEscape.getBoundingClientRect();
-      const b = btnNo.getBoundingClientRect();
-
-      const maxX = area.width - b.width - pad;
-      const maxY = area.height - b.height - pad;
-
-      const x = Math.random() * maxX + pad;
-      const y = Math.random() * maxY + pad;
-
-      btnNo.style.left = x + "px";
-      btnNo.style.top  = y + "px";
-      btnNo.style.bottom = "auto";
-    }
-
-    function unlockYesIfNeeded(){
-      if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) {
-        btnMaybe.textContent = MAYBE_LABEL_AFTER; // "SI"
-      }
-    }
-
-    btnNo.addEventListener("click", () => {
-      noClicks++;
-      unlockYesIfNeeded();
-      moveNoRandom();
-      vibrate(15);
-    });
-
-    btnMaybe.addEventListener("click", () => {
-      // se è ancora "?" non fare nulla (o puoi mettere un alert placeholder)
-      if (btnMaybe.textContent.trim() !== MAYBE_LABEL_AFTER) {
-        alert("MAYBE_ACTION_PLACEHOLDER");
-        return;
-      }
-      // è diventato SI -> apri link
-      window.open(YES_LINK, "_blank", "noopener,noreferrer");
-    });
-  </script>
+</script>
 </body>
 </html>
