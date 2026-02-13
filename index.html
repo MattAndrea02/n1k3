@@ -344,26 +344,20 @@
         </div>
 
         <!-- STAGE 3: Final countdown -->
-        <div id="stageFinal" class="playArea">
-          <div class="floating" style="top:14px; left:16px;">💗</div>
-          <div class="floating" style="top:36px; right:20px;">💘</div>
-          <div class="floating" style="bottom:20px; left:40px;">💞</div>
+        <!-- STAGE 3: Pagina intermedia -->
+<div id="stageFinal" class="playArea">
+  <div class="floating" style="top:14px; left:16px;">💗</div>
+  <div class="floating" style="top:36px; right:20px;">💘</div>
+  <div class="floating" style="bottom:20px; left:40px;">💞</div>
 
-          <div class="panel" style="text-align:center;">
-            <div style="font-weight:950; font-size:18px;" id="finalTitle">FINAL_TITLE_PLACEHOLDER</div>
-            <div class="muted" style="margin-top:8px;" id="finalText">FINAL_TEXT_PLACEHOLDER</div>
-            <div class="bigCountdown" id="countdown">10</div>
-            <div class="muted" style="margin-top:8px;" id="finalHint">FINAL_HINT_PLACEHOLDER</div>
-          </div>
+  <div class="panel" style="text-align:center;">
+    <div style="font-weight:950; font-size:18px;" id="finalTitle">FINAL_TITLE_PLACEHOLDER</div>
+    <div class="muted" style="margin-top:8px;" id="finalText">FINAL_TEXT_PLACEHOLDER</div>
+    <div class="muted" style="margin-top:8px;" id="finalHint">FINAL_HINT_PLACEHOLDER</div>
+    <button class="btnPrimary" id="btnGo" style="margin-top:12px;">VAI</button>
+  </div>
+</div>
 
-          <div class="panel">
-            <div style="font-weight:900; margin-bottom:8px;">SONG_LABEL_PLACEHOLDER</div>
-            <audio id="songPlayer" controls preload="metadata">
-              <source src="song.mp3" type="audio/mpeg">
-            </audio>
-            <div class="muted" style="margin-top:6px;">(metti <b>song.mp3</b> nella root della repo)</div>
-          </div>
-        </div>
 
         <div class="muted" id="appFooter">APP_FOOTER_PLACEHOLDER</div>
       </section>
@@ -377,8 +371,8 @@
     const PASSWORD = "egofrigorifero"; // case-insensitive
     const BACKGROUND_IMAGE = "background.jpg"; // opzionale in root
 
-    const CW_TITLE = "CRUCIVERBA_TITLE_PLACEHOLDER";
-    const CW_SUBTITLE = "CRUCIVERBA_SUBTITLE_PLACEHOLDER";
+    const CW_TITLE = "Crucitrota";
+    const CW_SUBTITLE = "FACILI";
     const CW_STATUS_IDLE = "CRUCIVERBA_STATUS_PLACEHOLDER";
     const CW_STATUS_FILL_ALL = "COMPILA_TUTTE_LE_CASELLE_PLACEHOLDER";
     const CW_STATUS_WRONG = "QUALCOSA_NON_TORNA_PLACEHOLDER";
@@ -691,6 +685,20 @@
       btnNo.style.bottom = "auto";
     }
 
+    // NO da bastardi: scappa quando provano anche solo a toccarlo
+btnNo.addEventListener("pointerdown", (e) => {
+  // evita il click "vero"
+  e.preventDefault();
+  e.stopPropagation();
+
+  noClicks++;
+  if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) btnMaybe.textContent = MAYBE_LABEL_AFTER;
+
+  moveNoRandom();
+  vibrate(15);
+  }, { passive: false });
+
+
     btnNo.addEventListener("click", () => {
       noClicks++;
       if (noClicks >= NO_CLICKS_TO_UNLOCK_SI) btnMaybe.textContent = MAYBE_LABEL_AFTER;
@@ -711,28 +719,21 @@
     // =======================
     let countdownTimer = null;
 
-    function startFinalCountdown(){
-      stageNoEscape.style.display = "none";
-      stageFinal.style.display = "block";
+    // STAGE 3: Pagina intermedia (niente countdown)
+function startFinalCountdown(){
+  stageNoEscape.style.display = "none";
+  stageFinal.style.display = "block";
 
-      finalTitleEl.textContent = FINAL_TITLE;
-      finalTextEl.textContent = FINAL_TEXT;
-      finalHintEl.textContent = FINAL_HINT;
+  finalTitleEl.textContent = FINAL_TITLE;
+  finalTextEl.textContent = FINAL_TEXT;
+  finalHintEl.textContent = FINAL_HINT;
 
-      let t = COUNTDOWN_SECONDS;
-      countdownEl.textContent = String(t);
+  // bottone VAI -> apre link finale
+  btnGo.onclick = () => {
+    window.open(YES_LINK, "_blank", "noopener,noreferrer");
+  };
+}
 
-      if(countdownTimer) clearInterval(countdownTimer);
-      countdownTimer = setInterval(() => {
-        t--;
-        countdownEl.textContent = String(t);
-        if(t <= 0){
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-          window.open(YES_LINK, "_blank", "noopener,noreferrer");
-        }
-      }, 1000);
-    }
   </script>
 </body>
 </html>
